@@ -1,0 +1,96 @@
+body {
+  min-width: 320px;
+  background: var(--color-page);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-main {
+  flex: 1;
+}
+
+.page-section {
+  width: 100%;
+  padding: 96px var(--space-page-x);
+}
+
+.page-container {
+  width: min(100%, var(--container-width));
+  margin: 0 auto;
+}
+
+.eyebrow {
+  margin: 0 0 12px;
+  color: var(--color-accent);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.section-title {
+  margin: 0;
+  font-size: clamp(32px, 5vw, 64px);
+  line-height: 1.05;
+}
+
+.section-copy {
+  max-width: 720px;
+  margin: 20px 0 0;
+  color: var(--color-muted);
+  font-size: 17px;
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.button {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0 18px;
+  font-weight: 700;
+}
+
+.button-primary {
+  border-color: var(--color-text);
+  background: var(--color-text);
+  color: #ffffff;
+}
+
+.button-secondary {
+  background: #ffffff;
+  color: var(--color-text);
+}
+
+@media (max-width: 720px) {
+  .page-section {
+    padding: 72px var(--space-page-x);
+  }
+
+  .button-row {
+    width: 100%;
+  }
+
+  .button {
+    flex: 1 1 160px;
+  }
+}

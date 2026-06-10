@@ -1,0 +1,16 @@
+:root {
+  --color-page: #ffffff;
+  --color-surface: #f8fafc;
+  --color-border: #e5e7eb;
+  --color-text: #111111;
+  --color-muted: #555555;
+  --color-subtle: #777777;
+  --color-accent: #14b8a6;
+  --color-accent-soft: #ccfbf1;
+  --font-sans: Inter, 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+  --container-width: 1120px;
+  --header-height: 72px;
+  --space-page-x: clamp(20px, 5vw, 48px);
+  --radius-sm: 8px;
+  --shadow-soft: 0 18px 50px rgb(15 23 42 / 8%);
+}
