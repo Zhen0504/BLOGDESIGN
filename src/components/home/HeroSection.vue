@@ -226,6 +226,8 @@ onBeforeUnmount(() => {
 }
 
 .hero-copy {
+  position: relative;
+  z-index: 4;
   max-width: 760px;
   margin: 28px auto 0;
   color: var(--color-muted);
@@ -234,6 +236,8 @@ onBeforeUnmount(() => {
 }
 
 .hero-actions {
+  position: relative;
+  z-index: 4;
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
@@ -245,7 +249,7 @@ onBeforeUnmount(() => {
   position: absolute;
   left: 50%;
   bottom: 26px;
-  z-index: 3;
+  z-index: 5;
   display: grid;
   justify-items: center;
   gap: 8px;
@@ -269,6 +273,14 @@ onBeforeUnmount(() => {
   transform: translateX(-50%);
   border-radius: 999px;
   background: var(--color-text);
+}
+
+.hero-kicker,
+.hero-copy,
+.hero-actions,
+.orb-hint {
+  position: relative;
+  z-index: 4;
 }
 
 .orb-hint {

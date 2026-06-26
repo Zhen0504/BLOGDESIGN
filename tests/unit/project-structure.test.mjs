@@ -73,6 +73,9 @@ assert.match(heroSection, /<div ref="titleRef"[\s\S]*<div class="cursor-orb"/)
 assert.match(heroSection, /overflow: visible/)
 assert.match(heroSection, /transition:\s*opacity 160ms ease/)
 assert.match(heroSection, /transition:\s*opacity 180ms ease/)
+assert.match(heroSection, /\.hero-kicker,[\s\S]*\.hero-copy,[\s\S]*\.hero-actions,[\s\S]*\.orb-hint/)
+assert.match(heroSection, /z-index: 4/)
+assert.match(heroSection, /z-index: 5/)
 
 const particleBackground = readFileSync(
   resolve(root, 'src/components/home/ParticleBackground.vue'),
