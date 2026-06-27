@@ -6,6 +6,7 @@ import HomeView from '../views/HomeView.vue'
 import ProjectsView from '../views/ProjectsView.vue'
 import TeamView from '../views/TeamView.vue'
 
+// Route meta titles are used below to keep browser tabs readable.
 const routes = [
   {
     path: '/',
@@ -45,6 +46,7 @@ const router = createRouter({
 })
 
 router.afterEach((to) => {
+  // Centralized title handling avoids each page component touching document state.
   document.title = to.meta?.title
     ? `${to.meta.title} - Leo Team Blog`
     : 'Leo Team Blog'

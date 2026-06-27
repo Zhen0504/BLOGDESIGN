@@ -11,6 +11,7 @@ body {
 }
 
 .app-shell {
+  /* Flex shell lets the footer stay after the route content without fixed heights. */
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -23,6 +24,12 @@ body {
 .page-section {
   width: 100%;
   padding: 96px var(--space-page-x);
+}
+
+.app-main > .page-section:only-child {
+  /* Non-home placeholder pages fill the viewport for the intended full-screen feel. */
+  min-height: 100vh;
+  box-sizing: border-box;
 }
 
 .page-container {
@@ -60,6 +67,7 @@ body {
 }
 
 .button {
+  /* Shared button primitive; individual variants only adjust color treatment. */
   display: inline-flex;
   min-height: 44px;
   align-items: center;
@@ -71,14 +79,15 @@ body {
 }
 
 .button-primary {
-  border-color: var(--color-text);
-  background: var(--color-text);
-  color: #ffffff;
+  border-color: #ffffff;
+  background: #ffffff;
+  color: #111116;
 }
 
 .button-secondary {
-  background: #ffffff;
-  color: var(--color-text);
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: #d7d3df;
 }
 
 @media (max-width: 720px) {

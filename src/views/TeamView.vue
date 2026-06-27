@@ -1,4 +1,5 @@
 <template>
+  <!-- Placeholder page uses shared section classes until member content is added. -->
   <section class="page-section">
     <div class="page-container">
       <p class="eyebrow">Team</p>

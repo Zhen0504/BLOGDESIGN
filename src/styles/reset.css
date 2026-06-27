@@ -1,6 +1,7 @@
 *,
 *::before,
 *::after {
+  /* Border-box keeps component sizing predictable across cards, nav, and buttons. */
   box-sizing: border-box;
 }
 
@@ -30,6 +31,7 @@ img,
 picture,
 svg,
 canvas {
+  /* Media elements render as blocks so canvas/image effects do not add inline gaps. */
   display: block;
   max-width: 100%;
 }

@@ -1,4 +1,5 @@
 <template>
+  <!-- Footer is intentionally static and route-agnostic for consistent page endings. -->
   <footer class="site-footer">
     <div class="footer-inner">
       <p class="footer-brand">Leo Team Blog</p>

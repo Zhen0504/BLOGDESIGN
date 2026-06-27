@@ -4,6 +4,7 @@ import { resolve } from 'node:path'
 
 const root = process.cwd()
 
+// Keep this list focused on files that define the public app structure.
 const files = [
   'package.json',
   'vite.config.js',
@@ -29,15 +30,18 @@ for (const file of files) {
   assert.equal(existsSync(resolve(root, file)), true, `${file} should exist`)
 }
 
+// Package assertions catch accidental removal of required scripts/dependencies.
 const packageJson = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8'))
 assert.equal(packageJson.scripts.dev, 'vite')
 assert.equal(packageJson.scripts.build, 'vite build')
+assert.equal(packageJson.dependencies.ogl, '^1.0.11')
 
 const viteConfig = readFileSync(resolve(root, 'vite.config.js'), 'utf8')
 assert.match(viteConfig, /@vitejs\/plugin-vue/)
 assert.match(viteConfig, /vue\(\)/)
 
 const app = readFileSync(resolve(root, 'src/App.vue'), 'utf8')
+// Shell assertions protect the persistent header/footer layout.
 assert.match(app, /<SiteHeader \/>/)
 assert.match(app, /<RouterView \/>/)
 assert.match(app, /<SiteFooter \/>/)
@@ -51,6 +55,7 @@ const homeView = readFileSync(resolve(root, 'src/views/HomeView.vue'), 'utf8')
 assert.match(homeView, /<HeroSection \/>/)
 
 const heroSection = readFileSync(resolve(root, 'src/components/home/HeroSection.vue'), 'utf8')
+// Hero assertions guard the custom interactive title/orb behavior.
 assert.match(heroSection, /HELLO, WELCOME TO OUR BLOG/)
 assert.match(heroSection, /欢迎来到我们的博客/)
 assert.match(heroSection, /ParticleBackground/)
@@ -67,7 +72,7 @@ assert.match(heroSection, /rotateY/)
 assert.match(heroSection, /orbEnabled/)
 assert.match(heroSection, /handleContextMenu/)
 assert.match(heroSection, /@contextmenu\.prevent/)
-assert.match(heroSection, /右键关闭\/打开黑球/)
+assert.match(heroSection, /右键关闭\/打开光球/)
 
 assert.match(heroSection, /<div ref="titleRef"[\s\S]*<div class="cursor-orb"/)
 assert.match(heroSection, /overflow: visible/)
@@ -81,6 +86,19 @@ const particleBackground = readFileSync(
   resolve(root, 'src/components/home/ParticleBackground.vue'),
   'utf8',
 )
+// Particle assertions guard the OGL background and hover/parallax wiring.
 assert.match(particleBackground, /requestAnimationFrame/)
 assert.match(particleBackground, /prefers-reduced-motion/)
 assert.match(particleBackground, /matchMedia/)
+assert.match(particleBackground, /from 'ogl'/)
+assert.match(particleBackground, /particleColors/)
+assert.match(particleBackground, /#20d6c7/)
+assert.match(particleBackground, /pointer-events: none/)
+assert.match(particleBackground, /targetParallaxX/)
+assert.match(particleBackground, /translate3d\(\$\{parallaxX\}px, \$\{parallaxY\}px, 0\)/)
+
+const variables = readFileSync(resolve(root, 'src/styles/variables.css'), 'utf8')
+// Theme assertions keep the dark blog palette stable across future edits.
+assert.match(variables, /--color-page:\s*#0f0d14/)
+assert.match(variables, /--color-text:\s*#f7f7fb/)
+assert.match(variables, /--color-accent:\s*#20d6c7/)

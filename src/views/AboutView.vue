@@ -1,4 +1,5 @@
 <template>
+  <!-- About page stays simple; no page-specific effects are mounted here. -->
   <section class="page-section">
     <div class="page-container">
       <p class="eyebrow">About</p>

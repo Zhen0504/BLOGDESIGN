@@ -17,6 +17,8 @@ const pointer = reactive({
 const heroRef = ref(null)
 const titleRef = ref(null)
 
+// Desktop pointer movement gently tilts the headline in 3D; touch devices keep
+// the title static so the layout remains predictable.
 const titleTransform = computed(() => {
   if (!isFinePointer.value || !pointer.active) {
     return 'perspective(900px) rotateX(0deg) rotateY(0deg) translate3d(0, 0, 0)'
@@ -38,6 +40,8 @@ const maskPosition = computed(() => {
   return `${pointer.titleX}px ${pointer.titleY}px`
 })
 
+// The mask title is a second text layer clipped to the cursor orb, creating the
+// reveal effect without changing the real headline text or layout.
 const maskTextStyle = computed(() => {
   const isVisible = orbEnabled.value && isFinePointer.value && pointer.active
 
@@ -50,13 +54,15 @@ const maskTextStyle = computed(() => {
 const cursorOrbStyle = computed(() => {
   return {
     opacity: orbEnabled.value && isFinePointer.value && pointer.active ? 1 : 0,
-    transform: `translate3d(${pointer.titleX}px, ${pointer.titleY}px, 12px) translate(-50%, -50%)`,
+    transform: `translate3d(${pointer.titleX}px, ${pointer.titleY}px, 26px) translate(-50%, -50%)`,
   }
 })
 
 function handlePointerMove(event) {
   if (!heroRef.value || !isFinePointer.value) return
 
+  // Normalize pointer position for transforms, then keep title-local coordinates
+  // for the circular clip path and orb placement.
   const rect = heroRef.value.getBoundingClientRect()
   const titleRect = titleRef.value?.getBoundingClientRect()
   pointer.x = ((event.clientX - rect.left) / rect.width - 0.5) * 2
@@ -81,6 +87,7 @@ function handlePointerLeave() {
 function handleContextMenu() {
   if (!isFinePointer.value) return
 
+  // Right-click toggles the decorative orb only on precise pointer devices.
   orbEnabled.value = !orbEnabled.value
   if (!orbEnabled.value) {
     handlePointerLeave()
@@ -88,6 +95,7 @@ function handleContextMenu() {
 }
 
 onMounted(() => {
+  // Fine pointer check prevents hover-only effects from appearing on touch input.
   isFinePointer.value = window.matchMedia('(pointer: fine)').matches
 })
 
@@ -104,6 +112,7 @@ onBeforeUnmount(() => {
     @pointerleave="handlePointerLeave"
     @contextmenu.prevent="handleContextMenu"
   >
+    <!-- Particles are a background layer and must stay behind content/interactions. -->
     <ParticleBackground />
 
     <div class="hero-content">
@@ -135,22 +144,24 @@ onBeforeUnmount(() => {
       <a class="scroll-indicator" href="#home-preview" aria-label="向下浏览">
         <span></span>
       </a>
-      <p class="orb-hint">右键关闭/打开黑球</p>
+      <p class="orb-hint">右键关闭/打开光球</p>
     </div>
   </section>
 </template>
 
 <style scoped>
 .hero-section {
+  /* Full viewport hero keeps the starfield and headline together on first load. */
   position: relative;
-  min-height: calc(100vh - var(--header-height));
+  min-height: 100vh;
   display: flex;
   align-items: center;
   overflow: hidden;
   padding: 96px var(--space-page-x) 84px;
   background:
-    radial-gradient(circle at 50% 42%, rgb(20 184 166 / 10%), transparent 24%),
-    #ffffff;
+    radial-gradient(circle at 50% 42%, rgba(32, 214, 199, 0.16), transparent 26%),
+    radial-gradient(circle at 18% 24%, rgba(112, 76, 255, 0.12), transparent 28%),
+    #0f0d14;
 }
 
 .hero-content {
@@ -162,6 +173,7 @@ onBeforeUnmount(() => {
 }
 
 .cursor-orb {
+  /* Decorative pointer orb; pointer-events stays off so buttons remain clickable. */
   position: absolute;
   left: 0;
   top: 0;
@@ -169,8 +181,8 @@ onBeforeUnmount(() => {
   width: 212px;
   height: 212px;
   border-radius: 50%;
-  background: #111111;
-  box-shadow: 0 22px 58px rgb(15 23 42 / 18%);
+  background: #20d6c7;
+  box-shadow: 0 22px 58px rgba(32, 214, 199, 0.18);
   pointer-events: none;
   transition: opacity 180ms ease;
   will-change: transform, opacity;
@@ -186,6 +198,7 @@ onBeforeUnmount(() => {
 }
 
 .hero-title-wrap {
+  /* Preserve 3D transforms for both the base headline and the clipped mask layer. */
   position: relative;
   z-index: 1;
   overflow: visible;
@@ -218,8 +231,8 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   z-index: 3;
-  color: #ffffff;
-  filter: drop-shadow(0 18px 36px rgb(15 23 42 / 16%));
+  color: #0f0d14;
+  filter: drop-shadow(0 18px 36px rgba(32, 214, 199, 0.18));
   pointer-events: none;
   transform: translateZ(28px);
   transition: opacity 160ms ease;
@@ -246,6 +259,7 @@ onBeforeUnmount(() => {
 }
 
 .scroll-control {
+  /* Kept above the particle canvas and hero text so the scroll affordance is visible. */
   position: absolute;
   left: 50%;
   bottom: 26px;
@@ -259,9 +273,9 @@ onBeforeUnmount(() => {
 .scroll-indicator {
   width: 28px;
   height: 44px;
-  border: 1px solid var(--color-border);
+  border: 1px solid #ffffff;
   border-radius: 999px;
-  background: rgb(255 255 255 / 78%);
+  background: #ffffff;
 }
 
 .scroll-indicator span {
@@ -272,7 +286,7 @@ onBeforeUnmount(() => {
   height: 8px;
   transform: translateX(-50%);
   border-radius: 999px;
-  background: var(--color-text);
+  background: #0f0d14;
 }
 
 .hero-kicker,
@@ -292,8 +306,9 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 760px), (pointer: coarse) {
+  /* Mobile/touch disables hover-only layers and returns the hero to a simple layout. */
   .hero-section {
-    min-height: auto;
+    min-height: 100vh;
     padding-top: 82px;
   }
 
@@ -325,6 +340,7 @@ onBeforeUnmount(() => {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  /* Respect reduced-motion preferences while keeping the content visible. */
   .hero-title-wrap,
   .hero-title-mask,
   .cursor-orb {

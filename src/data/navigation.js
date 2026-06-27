@@ -1,3 +1,5 @@
+// Single source of truth for the header navigation; update labels/routes here
+// instead of duplicating menu data inside layout components.
 export const navigationItems = [
   { label: '首页', to: '/' },
   { label: '博客', to: '/blog' },
