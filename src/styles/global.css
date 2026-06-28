@@ -1,3 +1,7 @@
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   min-width: 320px;
   background: var(--color-page);
@@ -90,6 +94,76 @@ body {
   color: #d7d3df;
 }
 
+.content-page {
+  background: var(--color-page);
+}
+
+.content-hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding-top: 140px;
+  padding-bottom: 120px;
+}
+
+.content-placeholder {
+  scroll-margin-top: var(--header-height);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.info-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.9fr) minmax(360px, 1fr);
+  gap: clamp(42px, 8vw, 112px);
+  align-items: start;
+}
+
+.info-primary h2 {
+  max-width: 560px;
+  margin: 0;
+  font-size: clamp(30px, 4vw, 52px);
+  line-height: 1.12;
+}
+
+.info-primary p {
+  max-width: 560px;
+  margin: 20px 0 0;
+  color: var(--color-muted);
+  font-size: 17px;
+}
+
+.info-primary .button {
+  margin-top: 28px;
+}
+
+.info-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(140px, 1fr));
+  gap: clamp(28px, 5vw, 72px);
+}
+
+.info-columns h3 {
+  margin: 0 0 22px;
+  color: var(--color-muted);
+  font-size: 14px;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.info-columns a {
+  display: block;
+  width: fit-content;
+  margin: 0 0 16px;
+  color: #d7d3df;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.info-columns a:hover {
+  color: var(--color-accent);
+}
+
 @media (max-width: 720px) {
   .page-section {
     padding: 72px var(--space-page-x);
@@ -101,5 +175,16 @@ body {
 
   .button {
     flex: 1 1 160px;
+  }
+
+  .info-layout,
+  .info-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
   }
 }

@@ -1,5 +1,7 @@
 <script setup>
 import { navigationItems } from '../../data/navigation'
+
+const emit = defineEmits(['open-contact'])
 </script>
 
 <template>
@@ -21,7 +23,8 @@ import { navigationItems } from '../../data/navigation'
         </RouterLink>
       </div>
 
-      <RouterLink class="contact-link" to="/about">联系我们</RouterLink>
+      <!-- Contact is a global action, not a route, so it can open from every page. -->
+      <button class="contact-link" type="button" @click="emit('open-contact')">联系我们</button>
     </nav>
   </header>
 </template>
@@ -117,8 +120,10 @@ import { navigationItems } from '../../data/navigation'
   position: relative;
   z-index: 1;
   justify-self: end;
-  border: 1px solid rgba(255, 255, 255, 0.24);
-  background: rgba(255, 255, 255, 0.16);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
 }
 
 @media (max-width: 760px) {

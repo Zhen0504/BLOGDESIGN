@@ -32,39 +32,41 @@ function handlePreviewPointerLeave(event) {
 </script>
 
 <template>
-  <HeroSection />
+  <div class="home-page">
+    <HeroSection />
 
-  <section id="home-preview" class="page-section preview-section">
-    <div class="page-container preview-grid">
-      <article
-        class="preview-item"
-        @pointermove="handlePreviewPointerMove"
-        @pointerleave="handlePreviewPointerLeave"
-      >
-        <p class="eyebrow">Blog</p>
-        <h2>技术文章</h2>
-        <p>沉淀课程学习、前端实践和项目复盘。</p>
-      </article>
-      <article
-        class="preview-item"
-        @pointermove="handlePreviewPointerMove"
-        @pointerleave="handlePreviewPointerLeave"
-      >
-        <p class="eyebrow">Projects</p>
-        <h2>项目展示</h2>
-        <p>展示团队协作完成的阶段性成果。</p>
-      </article>
-      <article
-        class="preview-item"
-        @pointermove="handlePreviewPointerMove"
-        @pointerleave="handlePreviewPointerLeave"
-      >
-        <p class="eyebrow">Team</p>
-        <h2>团队成员</h2>
-        <p>介绍成员分工、技能方向和协作方式。</p>
-      </article>
-    </div>
-  </section>
+    <section id="home-preview" class="page-section preview-section">
+      <div class="page-container preview-grid">
+        <article
+          class="preview-item"
+          @pointermove="handlePreviewPointerMove"
+          @pointerleave="handlePreviewPointerLeave"
+        >
+          <p class="eyebrow">Blog</p>
+          <h2>技术文章</h2>
+          <p>沉淀课程学习、前端实践和项目复盘。</p>
+        </article>
+        <article
+          class="preview-item"
+          @pointermove="handlePreviewPointerMove"
+          @pointerleave="handlePreviewPointerLeave"
+        >
+          <p class="eyebrow">Projects</p>
+          <h2>项目展示</h2>
+          <p>展示团队协作完成的阶段性成果。</p>
+        </article>
+        <article
+          class="preview-item"
+          @pointermove="handlePreviewPointerMove"
+          @pointerleave="handlePreviewPointerLeave"
+        >
+          <p class="eyebrow">Team</p>
+          <h2>团队成员</h2>
+          <p>介绍成员分工、技能方向和协作方式。</p>
+        </article>
+      </div>
+    </section>
+  </div>
 </template>
 
 <style scoped>

@@ -94,6 +94,10 @@ function handleContextMenu() {
   }
 }
 
+function handleScrollIndicatorClick() {
+  document.querySelector('#home-preview')?.scrollIntoView({ behavior: 'smooth' })
+}
+
 onMounted(() => {
   // Fine pointer check prevents hover-only effects from appearing on touch input.
   isFinePointer.value = window.matchMedia('(pointer: fine)').matches
@@ -141,7 +145,12 @@ onBeforeUnmount(() => {
     </div>
 
     <div class="scroll-control">
-      <a class="scroll-indicator" href="#home-preview" aria-label="向下浏览">
+      <a
+        class="scroll-indicator"
+        href="#home-preview"
+        aria-label="向下浏览"
+        @click.prevent="handleScrollIndicatorClick"
+      >
         <span></span>
       </a>
       <p class="orb-hint">右键关闭/打开光球</p>
