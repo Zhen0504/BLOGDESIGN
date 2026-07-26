@@ -1,186 +1,143 @@
 import assert from 'node:assert/strict'
 import { existsSync, readFileSync } from 'node:fs'
+import { pathToFileURL } from 'node:url'
 import { resolve } from 'node:path'
 
 const root = process.cwd()
 
-// Keep this list focused on files that define the public app structure.
-const files = [
+const requiredFiles = [
   'package.json',
   'vite.config.js',
   'index.html',
   'src/main.js',
   'src/App.vue',
   'src/router/index.js',
+  'src/data/portfolio.js',
+  'src/views/PortfolioView.vue',
+  'src/components/layout/PortfolioHeader.vue',
+  'src/components/layout/SectionIndicator.vue',
+  'src/components/sections/SectionContent.vue',
+  'src/components/projects/CompactProjectLink.vue',
   'src/styles/reset.css',
   'src/styles/variables.css',
   'src/styles/global.css',
-  'src/components/layout/SiteHeader.vue',
-  'src/components/layout/SiteFooter.vue',
-  'src/components/home/HeroSection.vue',
-  'src/components/home/ParticleBackground.vue',
-  'src/views/HomeView.vue',
-  'src/views/BlogListView.vue',
-  'src/views/ProjectsView.vue',
-  'src/views/TeamView.vue',
-  'src/views/AboutView.vue',
 ]
 
-for (const file of files) {
+for (const file of requiredFiles) {
   assert.equal(existsSync(resolve(root, file)), true, `${file} should exist`)
 }
 
-// Package assertions catch accidental removal of required scripts/dependencies.
+// First-stage cleanup is intentionally deferred until the new runtime is verified.
+for (const preservedFile of [
+  'plan.md',
+  'develop.md',
+  '设计.md',
+  'public/blog/home-hero-preview.png',
+  'public/images/projects/home-page.png',
+]) {
+  assert.equal(existsSync(resolve(root, preservedFile)), true, `${preservedFile} should be preserved`)
+}
+
 const packageJson = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8'))
 assert.equal(packageJson.scripts.dev, 'vite')
 assert.equal(packageJson.scripts.build, 'vite build')
+assert.equal(packageJson.dependencies.vue, '^3.5.0')
+assert.equal(packageJson.dependencies['vue-router'], '^4.5.0')
 assert.equal(packageJson.dependencies.ogl, '^1.0.11')
 
-const viteConfig = readFileSync(resolve(root, 'vite.config.js'), 'utf8')
-assert.match(viteConfig, /@vitejs\/plugin-vue/)
-assert.match(viteConfig, /vue\(\)/)
-
 const app = readFileSync(resolve(root, 'src/App.vue'), 'utf8')
-// Shell assertions protect the persistent header/footer layout.
-assert.match(app, /<SiteHeader @open-contact="openGlobalContact" \/>/)
-assert.match(app, /<RouterView v-slot/)
-assert.match(app, /<Transition name="page-transition" mode="out-in" appear>/)
-assert.match(app, /<SiteFooter \/>/)
-assert.match(app, /isGlobalContactOpen/)
-assert.match(app, /class="global-contact-dialog"/)
-assert.match(app, /暂未开放 \/ Coming soon/)
-
-const siteHeader = readFileSync(resolve(root, 'src/components/layout/SiteHeader.vue'), 'utf8')
-// Header contact is an app-level action so it works from every route.
-assert.match(siteHeader, /defineEmits\(\['open-contact'\]\)/)
-assert.match(siteHeader, /<button class="contact-link" type="button" @click="emit\('open-contact'\)">联系我们<\/button>/)
-assert.doesNotMatch(siteHeader, /<RouterLink class="contact-link" to="\/about">联系我们<\/RouterLink>/)
+assert.match(app, /<RouterView \/>/)
+assert.doesNotMatch(app, /:key="route\.path"/)
 
 const router = readFileSync(resolve(root, 'src/router/index.js'), 'utf8')
-assert.match(router, /createRouter/)
-assert.match(router, /HomeView/)
-assert.match(router, /BlogListView/)
-assert.match(router, /scrollBehavior/)
-assert.match(router, /behavior:\s*'smooth'/)
-assert.match(router, /return \{ top: 0 \}/)
+assert.match(router, /createWebHashHistory/)
+assert.doesNotMatch(router, /createWebHistory/)
+assert.match(router, /PortfolioView/)
+assert.match(router, /about\|development\|research\|contact/)
 
-const homeView = readFileSync(resolve(root, 'src/views/HomeView.vue'), 'utf8')
-assert.match(homeView, /<HeroSection \/>/)
-assert.match(homeView, /class="home-page"/)
-
-const aboutView = readFileSync(resolve(root, 'src/views/AboutView.vue'), 'utf8')
-// About assertions protect the richer page structure and the 3D identity card.
-assert.match(aboutView, /关于 Leo Team Blog/)
-assert.match(aboutView, /一个记录技术学习、课程实践与项目复盘的博客空间/)
-assert.match(aboutView, /class="page-section about-hero"/)
-assert.match(aboutView, /class="about-button about-button-primary" to="\/blog"/)
-assert.match(aboutView, /class="about-button about-button-secondary" to="\/projects"/)
-assert.match(aboutView, /class="identity-card-parent"/)
-assert.match(aboutView, /class="identity-card-background"/)
-assert.match(aboutView, /<strong>Blog<\/strong>/)
-assert.match(aboutView, /class="identity-box identity-box-1" to="\/blog"/)
-assert.match(aboutView, /class="identity-box identity-box-2" to="\/projects"/)
-assert.match(aboutView, /class="identity-box identity-box-3"/)
-assert.match(aboutView, /\.identity-card-parent:hover \.identity-box/)
-assert.doesNotMatch(aboutView, /identity-icon-hitbox/)
-assert.match(aboutView, /Build \/ Learn \/ Review/)
-assert.doesNotMatch(aboutView, /identity-card-glass/)
-assert.match(aboutView, /我们记录什么/)
-assert.match(aboutView, /class="topic-strip"/)
-assert.match(aboutView, /class="topic-card-inner"/)
-assert.match(aboutView, /class="topic-face topic-face-front"/)
-assert.match(aboutView, /class="topic-face topic-face-back"/)
-assert.match(aboutView, /@keyframes topicCardShine/)
-assert.match(aboutView, /技术笔记/)
-assert.match(aboutView, /项目复盘/)
-assert.match(aboutView, /团队协作/)
-assert.match(aboutView, /成长记录/)
-assert.match(aboutView, /学习过程如何沉淀/)
-assert.match(aboutView, /class="process-river"/)
-assert.match(aboutView, /class="process-river-line"/)
-assert.match(aboutView, /@keyframes processLineFlow/)
-assert.doesNotMatch(aboutView, /processRiverGradient/)
-assert.doesNotMatch(aboutView, /marker-end="url\(#processArrow\)"/)
-assert.match(aboutView, /发现问题/)
-assert.match(aboutView, /动手实践/)
-assert.match(aboutView, /记录过程/)
-assert.match(aboutView, /总结复盘/)
-assert.match(aboutView, /形成文章/)
-assert.match(aboutView, /后续计划/)
-assert.match(aboutView, /class="page-container roadmap-layout"/)
-assert.match(aboutView, /class="roadmap-list"/)
-assert.match(aboutView, /Building/)
-assert.match(aboutView, /Planned/)
-assert.match(aboutView, /完善文章分类/)
-assert.match(aboutView, /补充项目展示/)
-assert.match(aboutView, /优化团队介绍/)
-assert.match(aboutView, /建立学习路线/)
-assert.match(aboutView, /openContactDialog/)
-assert.match(aboutView, /contact-dialog/)
-assert.match(aboutView, /暂未开放 \/ Coming soon/)
-assert.match(aboutView, /建设中/)
-assert.match(aboutView, /交流方式/)
-assert.match(aboutView, /后续开放/)
-assert.match(aboutView, /recordTopics/)
-assert.match(aboutView, /processSteps/)
-assert.match(aboutView, /futurePlans/)
-assert.match(aboutView, /contactItems/)
-assert.match(aboutView, /@media \(max-width: 780px\)/)
-assert.match(aboutView, /\.process-river/)
-assert.doesNotMatch(aboutView, /svg-qq/)
-
-const heroSection = readFileSync(resolve(root, 'src/components/home/HeroSection.vue'), 'utf8')
-// Hero assertions guard the custom interactive title/orb behavior.
-assert.match(heroSection, /HELLO, WELCOME TO OUR BLOG/)
-assert.match(heroSection, /欢迎来到我们的博客/)
-assert.match(heroSection, /ParticleBackground/)
-assert.match(heroSection, /isFinePointer/)
-assert.match(heroSection, /maskPosition/)
-assert.match(heroSection, /cursorOrbStyle/)
-assert.match(heroSection, /maskTextStyle/)
-assert.match(heroSection, /titleRef/)
-assert.match(heroSection, /cursor-orb/)
-assert.match(heroSection, /titleTransform/)
-assert.match(heroSection, /perspective/)
-assert.match(heroSection, /rotateX/)
-assert.match(heroSection, /rotateY/)
-assert.match(heroSection, /orbEnabled/)
-assert.match(heroSection, /handleContextMenu/)
-assert.match(heroSection, /handleScrollIndicatorClick/)
-assert.match(heroSection, /@contextmenu\.prevent/)
-assert.match(heroSection, /scrollIntoView/)
-assert.match(heroSection, /右键关闭\/打开光球/)
-
-assert.match(heroSection, /<div ref="titleRef"[\s\S]*<div class="cursor-orb"/)
-assert.match(heroSection, /overflow: visible/)
-assert.match(heroSection, /transition:\s*opacity 160ms ease/)
-assert.match(heroSection, /transition:\s*opacity 180ms ease/)
-assert.match(heroSection, /\.hero-kicker,[\s\S]*\.hero-copy,[\s\S]*\.hero-actions,[\s\S]*\.orb-hint/)
-assert.match(heroSection, /z-index: 4/)
-assert.match(heroSection, /z-index: 5/)
-
-const particleBackground = readFileSync(
-  resolve(root, 'src/components/home/ParticleBackground.vue'),
-  'utf8',
-)
-// Particle assertions guard the OGL background and hover/parallax wiring.
-assert.match(particleBackground, /requestAnimationFrame/)
-assert.match(particleBackground, /prefers-reduced-motion/)
-assert.match(particleBackground, /matchMedia/)
-assert.match(particleBackground, /from 'ogl'/)
-assert.match(particleBackground, /particleColors/)
-assert.match(particleBackground, /#20d6c7/)
-assert.match(particleBackground, /pointer-events: none/)
-assert.match(particleBackground, /targetParallaxX/)
-assert.match(particleBackground, /translate3d\(\$\{parallaxX\}px, \$\{parallaxY\}px, 0\)/)
+const indexHtml = readFileSync(resolve(root, 'index.html'), 'utf8')
+assert.match(indexHtml, /Orbit Archive/)
+assert.match(indexHtml, /theme-color/)
+assert.doesNotMatch(indexHtml, /Leo Team Blog/)
 
 const variables = readFileSync(resolve(root, 'src/styles/variables.css'), 'utf8')
-// Theme assertions keep the dark blog palette stable across future edits.
-assert.match(variables, /--color-page:\s*#0f0d14/)
-assert.match(variables, /--color-text:\s*#f7f7fb/)
-assert.match(variables, /--color-accent:\s*#20d6c7/)
+assert.match(variables, /--color-page:\s*#030512/)
+assert.match(variables, /Noto Serif SC/)
+assert.match(variables, /Source Han Serif SC/)
+assert.match(variables, /Songti SC/)
+assert.match(variables, /SimSun/)
 
-const globalStyles = readFileSync(resolve(root, 'src/styles/global.css'), 'utf8')
-assert.match(globalStyles, /\.info-layout/)
-assert.match(globalStyles, /\.info-columns/)
-assert.doesNotMatch(globalStyles, /\.placeholder-card/)
+const portfolioModuleUrl = pathToFileURL(resolve(root, 'src/data/portfolio.js')).href
+const {
+  getLatestProjects,
+  getSectionBySlug,
+  isIsoDate,
+  portfolio,
+  sectionDefinitions,
+} = await import(portfolioModuleUrl)
+
+assert.equal(sectionDefinitions.length, 5)
+assert.deepEqual(sectionDefinitions.map((section) => section.id), ['00', '01', '02', '03', '04'])
+assert.deepEqual(sectionDefinitions.map((section) => section.slug), [
+  '',
+  'about',
+  'development',
+  'research',
+  'contact',
+])
+assert.equal(sectionDefinitions.filter((section) => section.navLabel === 'RESEARCH').length, 1)
+assert.equal(getSectionBySlug('about').contentSide, 'left')
+assert.equal(getSectionBySlug('development').contentSide, 'right')
+assert.equal(getSectionBySlug('research').contentSide, 'left')
+assert.equal(getSectionBySlug('contact').contentSide, 'right')
+assert.equal(portfolio.contact.github.href, 'https://github.com/Zhen0504')
+assert.equal(portfolio.contact.email, null)
+assert.equal(isIsoDate('2026-07-26'), true)
+assert.equal(isIsoDate('2026-7-26'), false)
+assert.equal(isIsoDate('2026-02-30'), false)
+
+const sortedFixtures = getLatestProjects([
+  { id: 'middle', date: '2026-05-04' },
+  { id: 'oldest', date: '2025-12-01' },
+  { id: 'newest', date: '2026-07-26' },
+])
+assert.deepEqual(sortedFixtures.map((project) => project.id), ['newest', 'middle'])
+
+for (const project of [
+  ...portfolio.developmentProjects,
+  ...portfolio.researchProjects,
+]) {
+  assert.equal(isIsoDate(project.date), true, `${project.id} should use an ISO date`)
+  assert.equal(typeof project.title, 'string')
+  assert.equal(typeof project.label, 'string')
+  assert.notEqual(project.href, '#')
+}
+
+const sectionContent = readFileSync(
+  resolve(root, 'src/components/sections/SectionContent.vue'),
+  'utf8',
+)
+assert.match(sectionContent, /getLatestProjects\(portfolio\.developmentProjects\)/)
+assert.match(sectionContent, /getLatestProjects\(portfolio\.researchProjects\)/)
+assert.match(sectionContent, /v-if="portfolio\.contact\.email"/)
+assert.match(sectionContent, /rel="noopener noreferrer"/)
+assert.match(sectionContent, /<span>Orbit<\/span>[\s\S]*<span>Archive\.<\/span>/)
+assert.match(sectionContent, /个人简介/)
+assert.match(sectionContent, /开发项目/)
+assert.match(sectionContent, /科研项目/)
+assert.match(sectionContent, /联系方式/)
+
+const overviewTemplate = sectionContent.match(
+  /<template v-if="section\.id === '00'">([\s\S]*?)<\/template>/,
+)?.[1] ?? ''
+assert.doesNotMatch(overviewTemplate, /[\u3400-\u9fff]/)
+
+const compactProjectLink = readFileSync(
+  resolve(root, 'src/components/projects/CompactProjectLink.vue'),
+  'utf8',
+)
+assert.match(compactProjectLink, /v-if="project\.href"/)
+assert.match(compactProjectLink, /aria-disabled="true"/)
+assert.doesNotMatch(compactProjectLink, /href="#"/)
+
+console.log('Portfolio structure checks passed.')

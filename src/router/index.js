@@ -1,68 +1,34 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 
-import AboutView from '../views/AboutView.vue'
-import BlogListView from '../views/BlogListView.vue'
-import HomeView from '../views/HomeView.vue'
-import ProjectsView from '../views/ProjectsView.vue'
-import TeamView from '../views/TeamView.vue'
+import { getSectionBySlug } from '../data/portfolio'
+import PortfolioView from '../views/PortfolioView.vue'
 
-// Route meta titles are used below to keep browser tabs readable.
 const routes = [
   {
-    path: '/',
-    name: 'home',
-    component: HomeView,
-    meta: { title: '首页' },
+    path: '/:section(about|development|research|contact)?',
+    name: 'portfolio',
+    component: PortfolioView,
+    props: true,
   },
   {
-    path: '/blog',
-    name: 'blog',
-    component: BlogListView,
-    meta: { title: '博客' },
-  },
-  {
-    path: '/projects',
-    name: 'projects',
-    component: ProjectsView,
-    meta: { title: '项目' },
-  },
-  {
-    path: '/team',
-    name: 'team',
-    component: TeamView,
-    meta: { title: '团队' },
-  },
-  {
-    path: '/about',
-    name: 'about',
-    component: AboutView,
-    meta: { title: '关于' },
+    path: '/:pathMatch(.*)*',
+    redirect: '/',
   },
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHashHistory(),
   routes,
-  scrollBehavior(to, from, savedPosition) {
-    if (savedPosition) return savedPosition
-
-    if (to.hash) {
-      return {
-        el: to.hash,
-        top: 0,
-        behavior: 'smooth',
-      }
-    }
-
+  scrollBehavior() {
     return { top: 0 }
   },
 })
 
 router.afterEach((to) => {
-  // Centralized title handling avoids each page component touching document state.
-  document.title = to.meta?.title
-    ? `${to.meta.title} - Leo Team Blog`
-    : 'Leo Team Blog'
+  const section = getSectionBySlug(to.params.section)
+  document.title = section.id === '00'
+    ? 'Orbit Archive — ZHEN'
+    : `${section.navLabel} — Orbit Archive`
 })
 
 export default router

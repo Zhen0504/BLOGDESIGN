@@ -1,18 +1,14 @@
 :root {
-  /* Theme tokens shared by layout, pages, buttons, and interactive effects. */
-  --color-page: #0f0d14;
-  --color-surface: #17141f;
-  --color-border: rgba(255, 255, 255, 0.10);
-  --color-text: #f7f7fb;
-  --color-muted: #a7a3b3;
-  --color-subtle: #8f8a9d;
-  --color-accent: #20d6c7;
-  --color-accent-soft: rgba(32, 214, 199, 0.16);
-  /* Prefer local/system Chinese-capable fonts while keeping Inter first when available. */
-  --font-sans: Inter, 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
-  --container-width: 1120px;
+  --color-page: #030512;
+  --color-surface: #090b1c;
+  --color-text: #eeece6;
+  --color-muted: #aaa9b3;
+  --color-subtle: #6d7187;
+  --color-gold: #f0ba5b;
+  --color-violet: #6e64dc;
+  --font-display: 'Bodoni 72', Didot, 'Times New Roman', serif;
+  --font-serif-cn: 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', STSong, SimSun, serif;
+  --font-ui: Inter, 'Helvetica Neue', Arial, sans-serif;
   --header-height: 72px;
-  --space-page-x: clamp(20px, 5vw, 48px);
-  --radius-sm: 8px;
-  --shadow-soft: 0 18px 50px rgb(0 0 0 / 24%);
+  --space-page-x: clamp(24px, 4vw, 54px);
 }
