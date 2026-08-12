@@ -10,6 +10,16 @@ const requiredFiles = [
   'src/experiments/crystal-lab/createCrystalLab.js',
   'src/experiments/crystal-lab/createQualityProfile.js',
   'src/experiments/crystal-lab/crystalConstants.js',
+  'src/experiments/crystal-lab/loadAboutCrystal.js',
+  'src/experiments/crystal-lab/createInteractionController.js',
+  'src/experiments/crystal-lab/createPostProcessing.js',
+  'src/experiments/crystal-lab/createCosmicBackdrop.js',
+  'src/experiments/crystal-lab/createCrystalEnvironment.js',
+  'src/experiments/crystal-lab/materials/createGemTransmissionMaterial.js',
+  'src/experiments/crystal-lab/materials/createEtchedPanelMaterial.js',
+  'public/experiments/crystal/about-crystal-v3.glb',
+  'public/experiments/crystal/about-user-sdf-v3.png',
+  'tools/blender/generate_about_crystal_v3.py',
 ]
 
 for (const file of requiredFiles) {
@@ -40,5 +50,38 @@ const scene = read('src/experiments/crystal-lab/createCrystalLab.js')
 assert.match(scene, /WebGLRenderer/)
 assert.match(scene, /__CRYSTAL_LAB__/)
 assert.match(scene, /dispose/)
+assert.match(scene, /WebGLRenderTarget/)
+assert.match(scene, /createCrystalEnvironment/)
+assert.match(scene, /captureTransmission/)
+
+const constants = read('src/experiments/crystal-lab/crystalConstants.js')
+assert.match(constants, /CRY_about_outer_frame_LOD0/)
+assert.match(constants, /CRY_about_inner_ring_LOD0/)
+assert.match(constants, /CRY_about_panel_LOD0/)
+assert.match(constants, /CRY_about_glass_cover_LOD0/)
+
+const loader = read('src/experiments/crystal-lab/loadAboutCrystal.js')
+assert.match(loader, /GLTFLoader/)
+assert.match(loader, /createOuterGemMaterial/)
+assert.match(loader, /createEtchedPanelMaterial/)
+
+const gemMaterial = read(
+  'src/experiments/crystal-lab/materials/createGemTransmissionMaterial.js',
+)
+assert.match(gemMaterial, /MeshTransmissionMaterial/)
+assert.match(gemMaterial, /MeshPhysicalMaterial/)
+assert.match(gemMaterial, /chromaticAberration/)
+assert.match(gemMaterial, /createGlassCoverMaterial/)
+
+const etchedMaterial = read(
+  'src/experiments/crystal-lab/materials/createEtchedPanelMaterial.js',
+)
+assert.match(etchedMaterial, /bumpScale:\s*-0\.045/)
+assert.match(etchedMaterial, /crystalEtchMask/)
+
+const interaction = read('src/experiments/crystal-lab/createInteractionController.js')
+assert.match(interaction, /prefers-reduced-motion|reducedMotion/)
+assert.match(interaction, /pointermove/)
+assert.match(interaction, /pointerleave/)
 
 console.log('Crystal lab structure checks passed.')

@@ -2,6 +2,7 @@ export const CRYSTAL_NODE_NAMES = Object.freeze({
   outerFrame: 'CRY_about_outer_frame_LOD0',
   innerRing: 'CRY_about_inner_ring_LOD0',
   panel: 'CRY_about_panel_LOD0',
+  glassCover: 'CRY_about_glass_cover_LOD0',
 })
 
 export const CRYSTAL_ASSETS = Object.freeze({

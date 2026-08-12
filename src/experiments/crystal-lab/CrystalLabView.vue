@@ -53,6 +53,9 @@ onBeforeUnmount(() => {
 }
 
 .crystal-lab__canvas {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
   display: block;
   width: 100vw;
   height: 100dvh;
@@ -60,6 +63,7 @@ onBeforeUnmount(() => {
 
 .crystal-lab__hud {
   position: absolute;
+  z-index: 2;
   top: 28px;
   left: 32px;
   color: rgba(230, 234, 255, 0.68);

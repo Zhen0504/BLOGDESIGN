@@ -18,8 +18,8 @@ export function createQualityProfile(renderer, viewport = window) {
 
   return Object.freeze({
     tier: isCompact ? 'medium' : 'high',
-    pixelRatio: Math.min(viewport.devicePixelRatio || 1, isCompact ? 1.25 : 1.5),
-    transmissionScale: isCompact ? 0.42 : 0.68,
+    pixelRatio: Math.min(viewport.devicePixelRatio || 1, isCompact ? 1.15 : 1.35),
+    transmissionScale: isCompact ? 0.34 : 0.46,
     halfFloat: hasHalfFloat,
     reducedMotion,
   })
