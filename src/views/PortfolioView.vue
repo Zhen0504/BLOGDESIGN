@@ -213,8 +213,7 @@ onBeforeUnmount(() => {
 .ambient-background {
   z-index: 1;
   background:
-    linear-gradient(90deg, rgba(2, 4, 16, 0.92) 0%, rgba(2, 4, 16, 0.78) 28%, transparent 52%),
-    radial-gradient(circle at 14% 54%, rgba(37, 45, 112, 0.12), transparent 38%);
+    radial-gradient(circle at 50% 48%, rgba(37, 45, 112, 0.045), transparent 62%);
 }
 
 .ambient-background::after {
@@ -260,13 +259,6 @@ onBeforeUnmount(() => {
 .portfolio-main.content-right :deep(.section-content) {
   grid-column: 2;
   justify-self: end;
-}
-
-.portfolio-view[data-section='02'] .ambient-background,
-.portfolio-view[data-section='04'] .ambient-background {
-  background:
-    linear-gradient(270deg, rgba(2, 4, 16, 0.9) 0%, rgba(2, 4, 16, 0.72) 27%, transparent 51%),
-    radial-gradient(circle at 86% 54%, rgba(37, 45, 112, 0.12), transparent 38%);
 }
 
 @media (max-width: 980px) {

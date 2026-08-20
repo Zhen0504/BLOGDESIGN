@@ -167,6 +167,8 @@ assert.match(particleText, /pointerRepel/)
 assert.doesNotMatch(particleText, /from ['"]react['"]/)
 
 const portfolioView = readFileSync(resolve(root, 'src/views/PortfolioView.vue'), 'utf8')
+assert.doesNotMatch(portfolioView, /linear-gradient\((?:90|270)deg/)
+assert.doesNotMatch(portfolioView, /data-section=['"]02['"]\]\s+\.ambient-background/)
 assert.match(portfolioView, /<CrystalScene/)
 assert.match(portfolioView, /<ZhenIntro/)
 assert.match(portfolioView, /@scene-ready="sceneReady = true"/)

@@ -9,6 +9,10 @@
 - Rendered section samples: `output/qa-section-development.png`, `output/qa-section-contact.png`
 - Focused intro comparison: `output/qa-intro-comparison.png`
 - Full-view 00 comparison: `output/qa-overview-comparison.png`
+- Reported section background mismatch: `output/qa-color-difference-before.png`
+- Corrected About state: `output/qa-color-difference-after-about.png`
+- Background before/after comparison: `output/qa-color-difference-comparison.png`
+- Additional corrected states: `output/qa-color-difference-after-research.png`, `output/qa-color-difference-after-contact.png`
 
 ## Normalization
 
@@ -25,7 +29,7 @@
 - No actionable P0, P1, or P2 findings remain for the four requested changes.
 - Typography: the intro now uses four rounded monoline glyphs with animated dash drawing instead of filled serif text and glow filters. The 01–04 display headings are English and retain the established particle-letter hierarchy.
 - Spacing and layout: the 00 crystal cluster occupies the right half, the center crystal sits at the visual average of the four outer anchors, and 01/03 versus 02/04 preserve the intended alternating content sides.
-- Colors and tokens: intro gradients stay inside the site's violet, indigo, ice-blue, and restrained gold palette. Scene exposure, bloom, emissive intensity, and edge highlights are lower than the previous pass; no left-side shadow bars remain.
+- Colors and tokens: intro gradients stay inside the site's violet, indigo, ice-blue, and restrained gold palette. Scene exposure, bloom, emissive intensity, and edge highlights are lower than the previous pass; no left-side shadow bars remain. The former section-dependent horizontal backdrop gradients were removed, so the WebGL scene now has one horizontally consistent background treatment on 01–04.
 - Image and asset fidelity: the user's Blender crystal assets remain unchanged. Their faceted surface is intentionally less smooth than the earlier concept render, but this is outside the requested intro/composition/lighting correction and does not impair the current interaction.
 - Copy and content: 00 remains English-only. Section headings resolve to ABOUT ME, DEVELOPMENT, RESEARCH, and CONTACT; supporting placeholder content remains honest and unchanged.
 - Interaction and accessibility: all four navigation routes were clicked in sequence, their headings and alternating layout positions were verified, pointer movement was exercised on the 00 scene, overflow remained hidden at 1280 × 720, and the browser console contained no errors. The intro retains its status label and reduced-motion handling.
@@ -44,6 +48,14 @@
 - The particle connection now reads as separated, organic clouds rather than one continuous line; the page retains a coherent relationship among the four crystals.
 - The intro focus comparison shows the requested minimalist line language with project-specific colors and no glow bars.
 
+### Pass 3 — passed
+
+- [P2] User evidence revealed a different dark tone behind the content side on every detail page.
+- Root cause: `.ambient-background` applied a high-opacity 90-degree gradient on 01/03 and reversed it to 270 degrees on 02/04, darkening whichever side held the DOM content. This was independent of the transparent particle-text canvas.
+- Fix: removed both directional gradients and the section-specific reversal; retained only a centered, very low-opacity radial atmosphere plus the existing vertical vignette.
+- Post-fix evidence: `output/qa-color-difference-after-about.png`, `output/qa-color-difference-after-research.png`, `output/qa-color-difference-after-contact.png`, and the equal-viewport comparison `output/qa-color-difference-comparison.png`.
+- All checked routes rendered without a content-side background block, and the browser console contained no errors.
+
 ## Follow-up polish
 
 - [P3] A later material-only pass could move the user-supplied Blender meshes closer to the smooth transparent-glass concept without changing this layout or interaction work.
@@ -56,6 +68,7 @@
 - [x] More visible ambient moving particles
 - [x] Organic broken nebula clouds instead of a closed ring
 - [x] Reduced lighting, bloom, emissive, and depth-of-field intensity
+- [x] Horizontally consistent background treatment on 01–04
 - [x] Browser interaction, layout, overflow, and console verification
 
 final result: passed
