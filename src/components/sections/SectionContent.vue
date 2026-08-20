@@ -68,10 +68,10 @@ const latestResearchProjects = computed(() => (
 
       <template v-else-if="section.id === '01'">
         <p class="chapter-label">CHAPTER <strong>01</strong> / ABOUT</p>
-        <h1 class="section-particle-title" aria-label="个人简介">
-          <span class="particle-title__accessible">个人简介</span>
+        <h1 class="section-particle-title" aria-label="ABOUT ME">
+          <span class="particle-title__accessible">ABOUT ME</span>
           <ParticleText
-            text="个 人 简 介"
+            text="ABOUT ME"
             color="#eeeaf7"
             highlight-color="#8064ff"
             :particle-size="1.5"
@@ -99,10 +99,10 @@ const latestResearchProjects = computed(() => (
 
       <template v-else-if="section.id === '02'">
         <p class="chapter-label">CHAPTER <strong>02</strong> / DEVELOPMENT</p>
-        <h1 class="section-particle-title" aria-label="开发项目">
-          <span class="particle-title__accessible">开发项目</span>
+        <h1 class="section-particle-title" aria-label="DEVELOPMENT">
+          <span class="particle-title__accessible">DEVELOPMENT</span>
           <ParticleText
-            text="开 发 项 目"
+            text="DEVELOPMENT"
             color="#eeeaf7"
             highlight-color="#8064ff"
             :particle-size="1.5"
@@ -131,10 +131,10 @@ const latestResearchProjects = computed(() => (
 
       <template v-else-if="section.id === '03'">
         <p class="chapter-label">CHAPTER <strong>03</strong> / RESEARCH</p>
-        <h1 class="section-particle-title" aria-label="科研项目">
-          <span class="particle-title__accessible">科研项目</span>
+        <h1 class="section-particle-title" aria-label="RESEARCH">
+          <span class="particle-title__accessible">RESEARCH</span>
           <ParticleText
-            text="科 研 项 目"
+            text="RESEARCH"
             color="#eeeaf7"
             highlight-color="#8064ff"
             :particle-size="1.5"
@@ -163,10 +163,10 @@ const latestResearchProjects = computed(() => (
 
       <template v-else>
         <p class="chapter-label">CHAPTER <strong>04</strong> / CONTACT</p>
-        <h1 class="section-particle-title" aria-label="联系方式">
-          <span class="particle-title__accessible">联系方式</span>
+        <h1 class="section-particle-title" aria-label="CONTACT">
+          <span class="particle-title__accessible">CONTACT</span>
           <ParticleText
-            text="联 系 方 式"
+            text="CONTACT"
             color="#eeeaf7"
             highlight-color="#8064ff"
             :particle-size="1.5"
@@ -248,7 +248,7 @@ const latestResearchProjects = computed(() => (
 }
 
 .section-particle-title :deep(.particle-text) {
-  font-family: var(--font-serif-cn);
+  font-family: var(--font-display);
 }
 
 .overview-title__second-line {

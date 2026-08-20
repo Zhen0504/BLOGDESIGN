@@ -25,11 +25,11 @@ export const SECTION_FOCUS = Object.freeze({
 })
 
 export const WELCOME_ANCHORS = Object.freeze({
-  about: { position: [1.52, 1.48, 0.08], rotation: [0.08, 0.10, -0.18], scale: 1 },
-  development: { position: [4.60, 1.25, -0.04], rotation: [0.08, -0.11, 0.15], scale: 1 },
-  research: { position: [1.70, -1.48, -0.12], rotation: [-0.09, 0.11, 0.13], scale: 1 },
-  contact: { position: [4.50, -1.33, -0.14], rotation: [-0.08, -0.11, -0.12], scale: 1 },
-  center: { position: [3.12, 0.00, 0.22], rotation: [0, 0, 0], scale: 1 },
+  about: { position: [1.84, 1.48, 0.08], rotation: [0.08, 0.10, -0.18], scale: 1 },
+  development: { position: [4.92, 1.25, -0.04], rotation: [0.08, -0.11, 0.15], scale: 1 },
+  research: { position: [2.02, -1.48, -0.12], rotation: [-0.09, 0.11, 0.13], scale: 1 },
+  contact: { position: [4.82, -1.33, -0.14], rotation: [-0.08, -0.11, -0.12], scale: 1 },
+  center: { position: [3.40, 0.00, 0.22], rotation: [0, 0, 0], scale: 1 },
 })
 
 export const FOCUS_POSITIONS = Object.freeze({

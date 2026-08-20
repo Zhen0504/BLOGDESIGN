@@ -24,10 +24,10 @@ export function createScenePostProcessing({ renderer, scene, camera, quality }) 
   depthOfField.target = new Vector3(1.9, 0, 0)
   const bloom = new BloomEffect({
     intensity: quality.bloomIntensity,
-    luminanceThreshold: 0.82,
-    luminanceSmoothing: 0.22,
+    luminanceThreshold: 0.88,
+    luminanceSmoothing: 0.16,
     mipmapBlur: true,
-    radius: 0.62,
+    radius: 0.48,
     levels: quality.compact ? 4 : 6,
   })
   const vignette = new VignetteEffect({ offset: 0.28, darkness: 0.72 })

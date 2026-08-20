@@ -141,16 +141,16 @@ assert.match(sectionContent, /<ParticleText[\s\S]*text="WELCOME"/)
 assert.match(sectionContent, /text="to"/)
 assert.match(sectionContent, /text="MY BLOG"/)
 assert.match(sectionContent, /aria-label="WELCOME to MY BLOG"/)
-assert.match(sectionContent, /text="个 人 简 介"/)
-assert.match(sectionContent, /text="开 发 项 目"/)
-assert.match(sectionContent, /text="科 研 项 目"/)
-assert.match(sectionContent, /text="联 系 方 式"/)
+assert.match(sectionContent, /text="ABOUT ME"/)
+assert.match(sectionContent, /text="DEVELOPMENT"/)
+assert.match(sectionContent, /text="RESEARCH"/)
+assert.match(sectionContent, /text="CONTACT"/)
 assert.match(sectionContent, /A personal space for development, research, and ideas\./)
 assert.match(sectionContent, /SCROLL TO EXPLORE/)
-assert.match(sectionContent, /个人简介/)
-assert.match(sectionContent, /开发项目/)
-assert.match(sectionContent, /科研项目/)
-assert.match(sectionContent, /联系方式/)
+assert.match(sectionContent, /aria-label="ABOUT ME"/)
+assert.match(sectionContent, /aria-label="DEVELOPMENT"/)
+assert.match(sectionContent, /aria-label="RESEARCH"/)
+assert.match(sectionContent, /aria-label="CONTACT"/)
 
 const overviewTemplate = sectionContent.match(
   /<template v-if="section\.id === '00'">([\s\S]*?)<\/template>/,
@@ -185,9 +185,13 @@ const zhenIntro = readFileSync(
   resolve(root, 'src/components/intro/ZhenIntro.vue'),
   'utf8',
 )
-assert.match(zhenIntro, />ZHEN</)
-assert.match(zhenIntro, /zhen-draw/)
+assert.match(zhenIntro, /aria-label="ZHEN — loading portfolio"/)
+assert.match(zhenIntro, /pathLength="360"/)
+assert.match(zhenIntro, /zhen-dash-array/)
+assert.match(zhenIntro, /zhen-dash-offset/)
 assert.match(zhenIntro, /sceneReady/)
+assert.doesNotMatch(zhenIntro, /feGaussianBlur/)
+assert.doesNotMatch(zhenIntro, /drop-shadow/)
 assert.doesNotMatch(zhenIntro, /from ['"]react['"]/)
 
 const particleGalaxy = readFileSync(
@@ -196,6 +200,8 @@ const particleGalaxy = readFileSync(
 )
 assert.doesNotMatch(particleGalaxy, /LineBasicMaterial/)
 assert.doesNotMatch(particleGalaxy, /createFilament/)
+assert.match(particleGalaxy, /createOverviewSparkles/)
+assert.match(particleGalaxy, /setSection\(sectionId/)
 
 const crystalManifest = readFileSync(
   resolve(root, 'src/components/crystal-scene/crystalManifest.js'),

@@ -11,7 +11,7 @@ function glassMaterial({ inner = false } = {}) {
   return new MeshPhysicalMaterial({
     color: inner ? '#815cef' : '#6745c2',
     emissive: new Color(inner ? '#21085b' : '#17043f'),
-    emissiveIntensity: inner ? 0.24 : 0.18,
+    emissiveIntensity: inner ? 0.16 : 0.11,
     metalness: 0,
     roughness: inner ? 0.045 : 0.065,
     transmission: 1,
@@ -27,9 +27,9 @@ function glassMaterial({ inner = false } = {}) {
     iridescenceThicknessRange: [120, 220],
     clearcoat: 1,
     clearcoatRoughness: inner ? 0.035 : 0.05,
-    specularIntensity: inner ? 0.28 : 0.25,
+    specularIntensity: inner ? 0.22 : 0.2,
     specularColor: new Color('#ad9cff'),
-    envMapIntensity: inner ? 0.4 : 0.44,
+    envMapIntensity: inner ? 0.28 : 0.32,
     side: DoubleSide,
     depthWrite: !inner,
   })
@@ -39,8 +39,8 @@ function edgeMaterial(center = false) {
   return new ShaderMaterial({
     uniforms: {
       uColor: { value: new Color(center ? '#7357ff' : '#7557ff') },
-      uIntensity: { value: center ? 2.6 : 1.35 },
-      uOpacity: { value: center ? 0.64 : 0.27 },
+      uIntensity: { value: center ? 2.0 : 1.05 },
+      uOpacity: { value: center ? 0.5 : 0.2 },
     },
     vertexShader: `
       varying vec3 vNormal;
@@ -77,7 +77,7 @@ export function createCrystalMaterials(key) {
   const icon = new MeshBasicMaterial({
     color: '#ecebff',
     transparent: true,
-    opacity: 0.98,
+    opacity: 0.92,
     depthTest: false,
     depthWrite: false,
     toneMapped: false,
@@ -85,13 +85,13 @@ export function createCrystalMaterials(key) {
   const star = new MeshBasicMaterial({
     color: '#896eff',
     transparent: true,
-    opacity: 0.74,
+    opacity: 0.62,
     toneMapped: false,
   })
   const core = new MeshBasicMaterial({
     color: '#9d8cff',
     transparent: true,
-    opacity: 0.9,
+    opacity: 0.78,
     toneMapped: false,
   })
 
@@ -108,8 +108,8 @@ export function createCrystalMaterials(key) {
 export function setMaterialOpacity(materials, opacity) {
   materials.outer.opacity = 0.7 * opacity
   materials.inner.opacity = 0.44 * opacity
-  materials.icon.opacity = Math.min(0.98, opacity * 1.2)
-  materials.star.opacity = Math.min(0.78, opacity)
-  materials.core.opacity = Math.min(0.94, opacity * 1.1)
-  materials.edge.uniforms.uOpacity.value = (materials.key === 'center' ? 0.64 : 0.27) * opacity
+  materials.icon.opacity = Math.min(0.92, opacity * 1.12)
+  materials.star.opacity = Math.min(0.64, opacity)
+  materials.core.opacity = Math.min(0.82, opacity * 1.04)
+  materials.edge.uniforms.uOpacity.value = (materials.key === 'center' ? 0.5 : 0.2) * opacity
 }

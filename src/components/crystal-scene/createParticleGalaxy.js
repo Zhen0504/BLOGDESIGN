@@ -1,13 +1,11 @@
 import {
   AdditiveBlending,
   BufferGeometry,
-  CatmullRomCurve3,
   Color,
   Float32BufferAttribute,
   Group,
   Points,
   ShaderMaterial,
-  Vector3,
 } from 'three'
 
 function seededRandom(seed) {
@@ -73,19 +71,6 @@ function createPointMaterial({ size, opacity, drift }) {
   })
 }
 
-function galaxyCurve() {
-  return new CatmullRomCurve3([
-    new Vector3(0.72, 1.45, -0.48),
-    new Vector3(1.92, 1.82, -0.56),
-    new Vector3(3.18, 1.26, -0.5),
-    new Vector3(3.58, -0.06, -0.54),
-    new Vector3(3.08, -1.38, -0.46),
-    new Vector3(1.92, -1.78, -0.56),
-    new Vector3(0.84, -1.45, -0.48),
-    new Vector3(0.38, -0.06, -0.58),
-  ], true, 'centripetal', 0.42)
-}
-
 function addAttributes(geometry, data) {
   geometry.setAttribute('position', new Float32BufferAttribute(data.positions, 3))
   geometry.setAttribute('color', new Float32BufferAttribute(data.colors, 3))
@@ -108,41 +93,58 @@ function createStars(count, random) {
   }
   const geometry = new BufferGeometry()
   addAttributes(geometry, data)
-  return new Points(geometry, createPointMaterial({ size: 3.2, opacity: 0.42, drift: 0.026 }))
+  return new Points(geometry, createPointMaterial({ size: 2.55, opacity: 0.31, drift: 0.026 }))
 }
 
-function createRibbonLayer(count, random, options) {
-  const curve = galaxyCurve()
+function createOverviewSparkles(count, random) {
   const data = { positions: [], colors: [], phases: [], weights: [], stretches: [] }
-  const tangent = new Vector3()
-  const normal = new Vector3()
-  const point = new Vector3()
+  const palette = ['#6556dd', '#8276f4', '#a7a5e8', '#74b8ed', '#c39a61']
+  for (let index = 0; index < count; index += 1) {
+    const x = -4.3 + random() * 10.8
+    const y = -3.8 + random() * 7.6
+    const centerFade = Math.min(1, Math.hypot(x - 1.9, y) / 1.8)
+    data.positions.push(x, y, -1.25 - random() * 2.8)
+    const color = new Color(palette[Math.floor(random() * palette.length)])
+    data.colors.push(color.r, color.g, color.b)
+    data.phases.push(random() * Math.PI * 2)
+    data.weights.push((0.34 + Math.pow(random(), 2.2) * 0.76) * (0.42 + centerFade * 0.58))
+    data.stretches.push(1)
+  }
+  const geometry = new BufferGeometry()
+  addAttributes(geometry, data)
+  return new Points(geometry, createPointMaterial({ size: 3.9, opacity: 0.5, drift: 0.046 }))
+}
+
+const nebulaCenters = [
+  { x: 2.08, y: 1.48, z: -0.52, angle: -0.12 },
+  { x: 3.38, y: 0.02, z: -0.55, angle: -1.24 },
+  { x: 2.06, y: -1.48, z: -0.52, angle: 0.12 },
+  { x: 0.58, y: -0.02, z: -0.57, angle: 1.24 },
+]
+
+function createNebulaLayer(count, random, options) {
+  const data = { positions: [], colors: [], phases: [], weights: [], stretches: [] }
 
   for (let index = 0; index < count; index += 1) {
-    const t = (index / count + (random() - 0.5) * options.jitter + 1) % 1
-    curve.getPointAt(t, point)
-    curve.getTangentAt(t, tangent)
-    normal.set(-tangent.y, tangent.x, 0).normalize()
-    const spread = (random() - 0.5) * options.spread * (0.45 + random())
+    const centerIndex = Math.floor(random() * nebulaCenters.length)
+    const center = nebulaCenters[centerIndex]
+    const angle = random() * Math.PI * 2
+    const radius = 0.16 + Math.pow(random(), 0.58) * 0.84
+    const localX = Math.cos(angle) * options.radiusX * radius
+    const localY = Math.sin(angle) * options.radiusY * radius
+    const cos = Math.cos(center.angle)
+    const sin = Math.sin(center.angle)
+    const noiseX = (random() - 0.5) * options.noise
+    const noiseY = (random() - 0.5) * options.noise
     data.positions.push(
-      point.x + normal.x * spread,
-      point.y + normal.y * spread,
-      point.z + (random() - 0.5) * options.depth,
+      center.x + localX * cos - localY * sin + noiseX,
+      center.y + localX * sin + localY * cos + noiseY,
+      center.z + (random() - 0.5) * options.depth,
     )
     const color = new Color(options.palette[Math.floor(random() * options.palette.length)])
     data.colors.push(color.r, color.g, color.b)
-    data.phases.push(t * Math.PI * 11 + random() * 1.5)
-    const breakWave = (
-      Math.sin(t * Math.PI * 6 + options.breakPhase)
-      + Math.sin(t * Math.PI * 14 - options.breakPhase * 0.7) * 0.46
-    )
-    const breakWeight = breakWave < options.breakThreshold
-      ? 0.12 + random() * 0.22
-      : 0.72 + random() * 0.38
-    data.weights.push(
-      (options.weight[0] + Math.pow(random(), options.weightPower) * options.weight[1])
-      * breakWeight,
-    )
+    data.phases.push(centerIndex * 1.7 + random() * Math.PI * 2)
+    data.weights.push(options.weight[0] + Math.pow(random(), options.weightPower) * options.weight[1])
     data.stretches.push(options.stretch[0] + random() * options.stretch[1])
   }
 
@@ -155,40 +157,47 @@ export function createParticleGalaxy(quality) {
   const random = seededRandom(5042026)
   const group = new Group()
   group.name = 'ParticleGalaxy'
-  group.position.x = 1.12
+  group.position.x = 1.44
 
   const stars = createStars(quality.starCount, random)
-  const dust = createRibbonLayer(Math.round(quality.ribbonCount * 1.22), random, {
-    jitter: 0.014, spread: 0.46, depth: 0.38,
+  const overviewSparkles = createOverviewSparkles(quality.compact ? 190 : 420, random)
+  const dust = createNebulaLayer(Math.round(quality.ribbonCount * 1.32), random, {
+    radiusX: 1.06, radiusY: 0.52, noise: 0.28, depth: 0.52,
     palette: ['#4937b8', '#5d52df', '#7771ee', '#aaa6ec'],
     weight: [0.34, 0.82], weightPower: 1.4, stretch: [1, 0.7],
-    breakPhase: 0.42, breakThreshold: -0.72,
-    size: 4.2, opacity: 0.69, drift: 0.065,
+    size: 4.35, opacity: 0.58, drift: 0.075,
   })
-  const mist = createRibbonLayer(Math.round(quality.ribbonCount * 0.46), random, {
-    jitter: 0.009, spread: 0.24, depth: 0.24,
+  const mist = createNebulaLayer(Math.round(quality.ribbonCount * 0.54), random, {
+    radiusX: 0.82, radiusY: 0.4, noise: 0.22, depth: 0.38,
     palette: ['#5844d5', '#6f58ef', '#9689ff'],
     weight: [0.5, 1.25], weightPower: 1.8, stretch: [1.4, 1.5],
-    breakPhase: 2.18, breakThreshold: -0.56,
-    size: 6.25, opacity: 0.34, drift: 0.052,
+    size: 5.15, opacity: 0.25, drift: 0.064,
   })
-  const highlights = createRibbonLayer(quality.compact ? 48 : 86, random, {
-    jitter: 0.004, spread: 0.16, depth: 0.16,
+  const highlights = createNebulaLayer(quality.compact ? 56 : 104, random, {
+    radiusX: 0.94, radiusY: 0.46, noise: 0.2, depth: 0.32,
     palette: ['#a99cff', '#c8c5ff', '#7365ff', '#caa66b'],
     weight: [0.72, 1.45], weightPower: 2.8, stretch: [1, 0.5],
-    breakPhase: 4.36, breakThreshold: -0.92,
-    size: 5.65, opacity: 0.9, drift: 0.04,
+    size: 5.2, opacity: 0.7, drift: 0.052,
   })
-  const animated = [stars, dust, mist, highlights]
-  group.add(stars, dust, mist, highlights)
+  const animated = [stars, overviewSparkles, dust, mist, highlights]
+  let overviewOpacity = 1
+  let overviewTarget = 1
+  group.add(stars, overviewSparkles, dust, mist, highlights)
   group.userData.restPosition = group.position.clone()
 
   return {
     group,
-    update(time) {
+    setSection(sectionId, immediate = false) {
+      overviewTarget = sectionId === '00' ? 1 : 0.035
+      if (immediate) overviewOpacity = overviewTarget
+    },
+    update(time, delta = 1 / 60) {
       animated.forEach((points, index) => {
         points.material.uniforms.uTime.value = time * (1 - index * 0.05)
       })
+      const response = 1 - Math.exp(-Math.min(delta, 0.05) * 4.2)
+      overviewOpacity += (overviewTarget - overviewOpacity) * response
+      overviewSparkles.material.uniforms.uOpacity.value = 0.5 * overviewOpacity
     },
     dispose() {
       animated.forEach((points) => {

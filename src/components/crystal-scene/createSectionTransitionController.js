@@ -50,8 +50,8 @@ function makeState(sectionId, models) {
     camera: overview ? [0, 0, 8.28] : [0.22, 0.06, 6.42],
     lookAt: overview ? [1.92, 0, 0] : [focusPosition[0] * 0.42, focusPosition[1] * 0.2, 0.12],
     focusPosition,
-    bokeh: overview ? 0 : 3.1,
-    focusRange: overview ? 4.8 : 0.82,
+    bokeh: overview ? 0 : 2.25,
+    focusRange: overview ? 4.8 : 1.05,
     modelStates,
   }
 }

@@ -13,6 +13,6 @@ export function createQualityProfile(renderer, viewport = window) {
     starCount: compact ? 380 : 760,
     ribbonCount: compact ? 720 : 1380,
     depthOfField: webgl2 && !compact && !reducedMotion,
-    bloomIntensity: compact ? 0.62 : 0.82,
+    bloomIntensity: compact ? 0.38 : 0.5,
   })
 }

@@ -45,21 +45,21 @@ function disposeSceneGraph(root) {
 }
 
 function addLighting(scene) {
-  scene.add(new AmbientLight('#21183f', 0.18))
-  const warm = new PointLight('#d69a75', 3.1, 7, 2)
+  scene.add(new AmbientLight('#21183f', 0.15))
+  const warm = new PointLight('#d69a75', 1.7, 7, 2)
   warm.position.set(-2.4, 2, 2.5)
   scene.add(warm)
-  const violet = new PointLight('#6842ff', 9.2, 8, 2)
+  const violet = new PointLight('#6842ff', 4.8, 8, 2)
   violet.position.set(4.3, 0.8, 2.4)
   scene.add(violet)
-  const blue = new PointLight('#4f54ff', 5.4, 7.5, 2)
+  const blue = new PointLight('#4f54ff', 2.8, 7.5, 2)
   blue.position.set(0.5, -2.9, 2.1)
   scene.add(blue)
-  const top = new DirectionalLight('#a99dff', 0.46)
+  const top = new DirectionalLight('#a99dff', 0.28)
   top.position.set(0, 4, 4)
   scene.add(top)
 
-  const rim = new PointLight('#9f7dff', 5.8, 6.5, 2)
+  const rim = new PointLight('#9f7dff', 3.1, 6.5, 2)
   rim.position.set(5.0, -2.2, 0.8)
   scene.add(rim)
 }
@@ -101,7 +101,7 @@ export async function createWelcomeCrystalScene({
 
   renderer.outputColorSpace = SRGBColorSpace
   renderer.toneMapping = ACESFilmicToneMapping
-  renderer.toneMappingExposure = 0.56
+  renderer.toneMappingExposure = 0.47
   renderer.setPixelRatio(quality.pixelRatio)
   scene.background = new Color('#01020b')
   scene.fog = new FogExp2('#020415', 0.022)
@@ -144,7 +144,7 @@ export async function createWelcomeCrystalScene({
       motion.enabled = !transition?.isTransitioning
     }
     motion?.update(delta, time)
-    galaxy.update(time)
+    galaxy.update(time, delta)
     post?.render(delta)
   }
 
@@ -169,6 +169,7 @@ export async function createWelcomeCrystalScene({
 
   function setSection(sectionId, immediate = false) {
     transition?.setSection(sectionId, immediate)
+    galaxy.setSection(sectionId, immediate)
   }
 
   function dispose() {
@@ -236,6 +237,7 @@ export async function createWelcomeCrystalScene({
       onComplete: onTransitionComplete,
     })
     transition.setSection(initialSection, true)
+    galaxy.setSection(initialSection, true)
     motion = createCrystalMotionController({
       canvas,
       camera,
