@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 
 import { getLatestProjects, portfolio } from '../../data/portfolio'
+import ParticleText from '../effects/ParticleText.vue'
 import CompactProjectLink from '../projects/CompactProjectLink.vue'
 
 defineProps({
@@ -21,12 +22,41 @@ const latestResearchProjects = computed(() => (
 </script>
 
 <template>
-  <Transition name="content-swap" mode="out-in" appear>
-    <section :key="section.id" class="section-content" :class="`section-${section.id}`">
+  <section :key="section.id" class="section-content" :class="`section-${section.id}`">
       <template v-if="section.id === '00'">
-        <h1 class="overview-title">
-          <span>WELCOME</span>
-          <span><em>to</em> MY BLOG</span>
+        <h1 class="overview-title" aria-label="WELCOME to MY BLOG">
+          <span class="overview-title__accessible">WELCOME to MY BLOG</span>
+          <ParticleText
+            class="overview-particles overview-particles--welcome"
+            text="WELCOME"
+            color="#eeeaf7"
+            highlight-color="#8064ff"
+            :particle-size="1.7"
+            :density="4"
+            :scatter="150"
+          />
+          <span class="overview-title__second-line">
+            <ParticleText
+              class="overview-particles overview-particles--to"
+              text="to"
+              color="#d7a64f"
+              highlight-color="#f1d39a"
+              :particle-size="1.55"
+              :density="3"
+              :scatter="62"
+              font-size="clamp(30px, 3.2vw, 50px)"
+              font-weight="500"
+            />
+            <ParticleText
+              class="overview-particles overview-particles--blog"
+              text="MY BLOG"
+              color="#eeeaf7"
+              highlight-color="#7458ff"
+              :particle-size="1.7"
+              :density="4"
+              :scatter="150"
+            />
+          </span>
         </h1>
         <p class="overview-subtitle">A personal space for development, research, and ideas.</p>
         <p class="overview-topics">DEVELOPMENT · RESEARCH · NOTES</p>
@@ -105,8 +135,7 @@ const latestResearchProjects = computed(() => (
           </a>
         </div>
       </template>
-    </section>
-  </Transition>
+  </section>
 </template>
 
 <style scoped>
@@ -126,22 +155,35 @@ const latestResearchProjects = computed(() => (
 
 .overview-title {
   display: grid;
+  width: min(500px, 100%);
+  height: 176px;
   margin: 0 !important;
   font-family: var(--font-display) !important;
-  font-size: clamp(56px, 5.8vw, 92px) !important;
-  letter-spacing: -0.045em !important;
-  line-height: 0.91 !important;
+  grid-template-rows: 88px 88px;
+}
+
+.overview-title__accessible {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
   white-space: nowrap;
 }
 
-.overview-title em {
-  margin-right: 0.14em;
-  color: var(--color-gold);
-  font-size: 0.48em;
-  font-style: italic;
-  font-weight: 400;
-  letter-spacing: 0;
-  vertical-align: 0.17em;
+.overview-title__second-line {
+  display: grid;
+  grid-template-columns: 80px minmax(0, 1fr);
+  min-width: 0;
+}
+
+.overview-particles {
+  min-width: 0;
+}
+
+.overview-particles--to {
+  transform: translateY(4px);
 }
 
 .overview-subtitle {
@@ -269,23 +311,6 @@ const latestResearchProjects = computed(() => (
   color: var(--color-gold);
 }
 
-.content-swap-enter-active,
-.content-swap-leave-active {
-  transition:
-    opacity 260ms ease,
-    transform 340ms cubic-bezier(0.2, 0.75, 0.2, 1);
-}
-
-.content-swap-enter-from {
-  opacity: 0;
-  transform: translateY(18px);
-}
-
-.content-swap-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
-}
-
 @media (max-width: 760px) {
   .section-content {
     width: min(100%, 480px);
@@ -297,8 +322,13 @@ const latestResearchProjects = computed(() => (
   }
 
   .overview-title {
-    font-size: clamp(42px, 12.5vw, 62px) !important;
-    white-space: normal;
+    width: min(100%, 430px);
+    height: 132px;
+    grid-template-rows: 66px 66px;
+  }
+
+  .overview-title__second-line {
+    grid-template-columns: 56px minmax(0, 1fr);
   }
 
   .overview-subtitle {
@@ -321,15 +351,4 @@ const latestResearchProjects = computed(() => (
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .content-swap-enter-active,
-  .content-swap-leave-active {
-    transition: opacity 120ms linear;
-  }
-
-  .content-swap-enter-from,
-  .content-swap-leave-to {
-    transform: none;
-  }
-}
 </style>

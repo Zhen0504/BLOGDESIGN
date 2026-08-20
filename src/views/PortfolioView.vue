@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import CrystalScene from '../components/crystal-scene/CrystalScene.vue'
@@ -21,9 +21,13 @@ const props = defineProps({
 
 const router = useRouter()
 const activeSection = computed(() => getSectionBySlug(props.section))
+const displayedSection = ref(activeSection.value)
 const transitionLocked = ref(false)
+const contentHidden = ref(false)
 let wheelDelta = 0
 let wheelResetTimer = 0
+let contentSwapTimer = 0
+let contentRevealTimer = 0
 
 async function navigateTo(section) {
   if (!section || transitionLocked.value || section.id === activeSection.value.id) return
@@ -74,6 +78,19 @@ function onTransitionComplete() {
   transitionLocked.value = false
 }
 
+watch(() => activeSection.value.id, () => {
+  const nextSection = activeSection.value
+  window.clearTimeout(contentSwapTimer)
+  window.clearTimeout(contentRevealTimer)
+  contentHidden.value = true
+  contentSwapTimer = window.setTimeout(() => {
+    displayedSection.value = nextSection
+    contentRevealTimer = window.setTimeout(() => {
+      contentHidden.value = false
+    }, 34)
+  }, 280)
+})
+
 onMounted(() => {
   window.addEventListener('wheel', onWheel, { passive: false })
   window.addEventListener('keydown', onKeydown)
@@ -83,6 +100,8 @@ onBeforeUnmount(() => {
   window.removeEventListener('wheel', onWheel)
   window.removeEventListener('keydown', onKeydown)
   window.clearTimeout(wheelResetTimer)
+  window.clearTimeout(contentSwapTimer)
+  window.clearTimeout(contentRevealTimer)
 })
 </script>
 
@@ -103,10 +122,10 @@ onBeforeUnmount(() => {
 
     <main
       class="portfolio-main"
-      :class="[`content-${activeSection.contentSide}`, { 'is-transitioning': transitionLocked }]"
-      :aria-label="activeSection.navLabel"
+      :class="[`content-${displayedSection.contentSide}`, { 'content-hidden': contentHidden }]"
+      :aria-label="displayedSection.navLabel"
     >
-      <SectionContent :section="activeSection" />
+      <SectionContent :section="displayedSection" />
     </main>
 
     <SectionIndicator
@@ -171,9 +190,9 @@ onBeforeUnmount(() => {
     transform 520ms cubic-bezier(0.2, 0.75, 0.2, 1);
 }
 
-.portfolio-main.is-transitioning :deep(.section-content) {
+.portfolio-main.content-hidden :deep(.section-content) {
   opacity: 0;
-  transform: translateX(-24px);
+  transform: translateY(14px);
 }
 
 .portfolio-main.content-left :deep(.section-content) {
@@ -184,6 +203,13 @@ onBeforeUnmount(() => {
 .portfolio-main.content-right :deep(.section-content) {
   grid-column: 2;
   justify-self: end;
+}
+
+.portfolio-view[data-section='02'] .ambient-background,
+.portfolio-view[data-section='04'] .ambient-background {
+  background:
+    linear-gradient(270deg, rgba(2, 4, 16, 0.9) 0%, rgba(2, 4, 16, 0.72) 27%, transparent 51%),
+    radial-gradient(circle at 86% 54%, rgba(37, 45, 112, 0.12), transparent 38%);
 }
 
 @media (max-width: 980px) {

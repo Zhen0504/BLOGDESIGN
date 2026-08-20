@@ -45,21 +45,21 @@ function disposeSceneGraph(root) {
 }
 
 function addLighting(scene) {
-  scene.add(new AmbientLight('#252a4c', 0.2))
-  const warm = new PointLight('#ffc28b', 5.5, 7, 2)
+  scene.add(new AmbientLight('#21183f', 0.18))
+  const warm = new PointLight('#d69a75', 3.1, 7, 2)
   warm.position.set(-2.4, 2, 2.5)
   scene.add(warm)
-  const violet = new PointLight('#6147ff', 7, 8, 2)
+  const violet = new PointLight('#6842ff', 9.2, 8, 2)
   violet.position.set(4.3, 0.8, 2.4)
   scene.add(violet)
-  const blue = new PointLight('#526dff', 3.8, 7.5, 2)
+  const blue = new PointLight('#4f54ff', 5.4, 7.5, 2)
   blue.position.set(0.5, -2.9, 2.1)
   scene.add(blue)
-  const top = new DirectionalLight('#e1e5ff', 0.65)
+  const top = new DirectionalLight('#a99dff', 0.46)
   top.position.set(0, 4, 4)
   scene.add(top)
 
-  const rim = new PointLight('#d9c6ff', 4.4, 6.5, 2)
+  const rim = new PointLight('#9f7dff', 5.8, 6.5, 2)
   rim.position.set(5.0, -2.2, 0.8)
   scene.add(rim)
 }
@@ -101,7 +101,7 @@ export async function createWelcomeCrystalScene({
 
   renderer.outputColorSpace = SRGBColorSpace
   renderer.toneMapping = ACESFilmicToneMapping
-  renderer.toneMappingExposure = 0.62
+  renderer.toneMappingExposure = 0.56
   renderer.setPixelRatio(quality.pixelRatio)
   scene.background = new Color('#01020b')
   scene.fog = new FogExp2('#020415', 0.022)
@@ -139,7 +139,10 @@ export async function createWelcomeCrystalScene({
       fpsStartedAt = now
     }
     transition?.update(delta)
-    if (motion) motion.enabled = transition?.activeSection === '00' && !transition.isTransitioning
+    if (motion) {
+      motion.section = transition?.activeSection ?? initialSection
+      motion.enabled = !transition?.isTransitioning
+    }
     motion?.update(delta, time)
     galaxy.update(time)
     post?.render(delta)
@@ -208,6 +211,7 @@ export async function createWelcomeCrystalScene({
         rotation: [model.rotation.x, model.rotation.y, model.rotation.z],
       }]))
     },
+    get pointerInfluences() { return motion?.influences ?? {} },
     setSection,
     setPointer(x, y) { motion?.setPointer(x, y) },
     pause: stop,
@@ -234,6 +238,7 @@ export async function createWelcomeCrystalScene({
     transition.setSection(initialSection, true)
     motion = createCrystalMotionController({
       canvas,
+      camera,
       models,
       galaxy,
       reducedMotion: quality.reducedMotion,

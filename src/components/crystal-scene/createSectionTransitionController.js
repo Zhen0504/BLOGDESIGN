@@ -27,7 +27,7 @@ function makeState(sectionId, models) {
       modelStates[key] = {
         position: FOCUS_POSITIONS[key],
         rotation: [0.02, key === 'development' || key === 'contact' ? -0.12 : 0.12, anchor.rotation[2] * 0.35],
-        scale: 1.66,
+        scale: 1.52,
         opacity: 1,
       }
       return
@@ -42,13 +42,13 @@ function makeState(sectionId, models) {
     }
   })
 
-  const focusPosition = overview ? [1.92, 0, 0] : FOCUS_POSITIONS[focusKey]
+  const focusPosition = overview ? [3.12, 0, 0] : FOCUS_POSITIONS[focusKey]
   return {
     sectionId,
     focusKey,
     overview,
-    camera: overview ? [0, 0, 8.15] : [0.34, 0.08, 6.18],
-    lookAt: overview ? [1.83, 0, 0] : [focusPosition[0] * 0.42, focusPosition[1] * 0.2, 0.12],
+    camera: overview ? [0, 0, 8.28] : [0.22, 0.06, 6.42],
+    lookAt: overview ? [1.92, 0, 0] : [focusPosition[0] * 0.42, focusPosition[1] * 0.2, 0.12],
     focusPosition,
     bokeh: overview ? 0 : 3.1,
     focusRange: overview ? 4.8 : 0.82,
@@ -56,7 +56,7 @@ function makeState(sectionId, models) {
   }
 }
 
-function snapshot(camera, lookAt, models, depthOfField) {
+function snapshot(camera, lookAt, focusTarget, models, depthOfField) {
   const modelStates = {}
   Object.entries(models).forEach(([key, model]) => {
     modelStates[key] = {
@@ -69,6 +69,7 @@ function snapshot(camera, lookAt, models, depthOfField) {
   return {
     camera: camera.position.toArray(),
     lookAt: lookAt.toArray(),
+    focusPosition: focusTarget.toArray(),
     bokeh: depthOfField.bokehScale,
     focusRange: depthOfField.cocMaterial.focusRange,
     modelStates,
@@ -110,7 +111,11 @@ export function createSectionTransitionController({
       lerpNumber(source.lookAt[2], state.lookAt[2], progress),
     )
     camera.lookAt(lookAt)
-    focusTarget.set(...state.focusPosition)
+    focusTarget.set(
+      lerpNumber(source.focusPosition[0], state.focusPosition[0], progress),
+      lerpNumber(source.focusPosition[1], state.focusPosition[1], progress),
+      lerpNumber(source.focusPosition[2], state.focusPosition[2], progress),
+    )
     depthOfField.bokehScale = quality.depthOfField
       ? lerpNumber(source.bokeh, state.bokeh, progress)
       : 0
@@ -150,7 +155,7 @@ export function createSectionTransitionController({
       onComplete?.(sectionId)
       return
     }
-    fromState = snapshot(camera, lookAt, models, depthOfField)
+    fromState = snapshot(camera, lookAt, focusTarget, models, depthOfField)
     toState = targetState
     elapsed = 0
     transitioning = true
