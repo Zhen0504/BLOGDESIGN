@@ -25,10 +25,15 @@ const latestResearchProjects = computed(() => (
     <section :key="section.id" class="section-content" :class="`section-${section.id}`">
       <template v-if="section.id === '00'">
         <h1 class="overview-title">
-          <span>Orbit</span>
-          <span>Archive.</span>
+          <span>WELCOME</span>
+          <span><em>to</em> MY BLOG</span>
         </h1>
-        <p class="overview-subtitle">{{ portfolio.brand.subtitle }}</p>
+        <p class="overview-subtitle">A personal space for development, research, and ideas.</p>
+        <p class="overview-topics">DEVELOPMENT · RESEARCH · NOTES</p>
+        <div class="scroll-cue" aria-hidden="true">
+          <span></span>
+          <strong>SCROLL TO EXPLORE</strong>
+        </div>
       </template>
 
       <template v-else-if="section.id === '01'">
@@ -123,17 +128,59 @@ const latestResearchProjects = computed(() => (
   display: grid;
   margin: 0 !important;
   font-family: var(--font-display) !important;
-  font-size: clamp(74px, 8vw, 132px) !important;
-  letter-spacing: -0.055em !important;
-  line-height: 0.87 !important;
+  font-size: clamp(56px, 5.8vw, 92px) !important;
+  letter-spacing: -0.045em !important;
+  line-height: 0.91 !important;
+  white-space: nowrap;
+}
+
+.overview-title em {
+  margin-right: 0.14em;
+  color: var(--color-gold);
+  font-size: 0.48em;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0;
+  vertical-align: 0.17em;
 }
 
 .overview-subtitle {
-  margin: 30px 0 0;
+  max-width: 420px;
+  margin: 34px 0 0;
   color: var(--color-muted);
+  font-family: var(--font-display);
+  font-size: clamp(16px, 1.35vw, 21px);
+  letter-spacing: 0.025em;
+  line-height: 1.55;
+}
+
+.overview-topics {
+  margin: 24px 0 0;
+  color: var(--color-gold);
   font-family: var(--font-ui);
-  font-size: 11px;
+  font-size: 9px;
   letter-spacing: 0.28em;
+}
+
+.scroll-cue {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-top: clamp(62px, 10vh, 112px);
+  color: rgba(220, 223, 239, 0.5);
+  font-family: var(--font-ui);
+  font-size: 8px;
+  letter-spacing: 0.28em;
+}
+
+.scroll-cue span {
+  width: 42px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--color-gold), rgba(240, 186, 91, 0));
+}
+
+.scroll-cue strong {
+  font-weight: 400;
 }
 
 .chapter-label {
@@ -250,13 +297,18 @@ const latestResearchProjects = computed(() => (
   }
 
   .overview-title {
-    font-size: clamp(64px, 19vw, 96px) !important;
+    font-size: clamp(42px, 12.5vw, 62px) !important;
+    white-space: normal;
   }
 
   .overview-subtitle {
     max-width: 280px;
-    font-size: 9px;
-    line-height: 2;
+    font-size: 15px;
+    line-height: 1.55;
+  }
+
+  .scroll-cue {
+    margin-top: 38px;
   }
 
   .chapter-label {

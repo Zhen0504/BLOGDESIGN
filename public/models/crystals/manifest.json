@@ -1,0 +1,11 @@
+{
+  "source": "C:/Users/lenovo/Desktop/草稿/信拓/testmodel/crystal-web/public",
+  "importedAt": "2026-08-20",
+  "assets": [
+    { "role": "about", "source": "purple_crystals_person.glb", "target": "about.glb", "bytes": 591540 },
+    { "role": "development", "source": "purple_crystals_code.glb", "target": "development.glb", "bytes": 353964 },
+    { "role": "research", "source": "purple_crystals_study.glb", "target": "research.glb", "bytes": 451936 },
+    { "role": "contact", "source": "purple_crystals_contact.glb", "target": "contact.glb", "bytes": 366612 },
+    { "role": "center", "source": "purple_crystals_ball.glb", "target": "center.glb", "bytes": 1311932 }
+  ]
+}

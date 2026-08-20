@@ -1,12 +1,24 @@
 <script setup>
 import { getSectionPath, sectionDefinitions } from '../../data/portfolio'
 
-defineProps({
+const props = defineProps({
   activeSection: {
     type: Object,
     required: true,
   },
+  navigationLocked: {
+    type: Boolean,
+    default: false,
+  },
 })
+
+const emit = defineEmits(['navigate'])
+
+function requestNavigation(event, section) {
+  event.preventDefault()
+  if (props.navigationLocked) return
+  emit('navigate', section)
+}
 </script>
 
 <template>
@@ -22,6 +34,8 @@ defineProps({
         :title="section.navLabel"
         :aria-label="`Go to ${section.navLabel}`"
         :aria-current="activeSection.id === section.id ? 'step' : undefined"
+        :aria-disabled="navigationLocked ? 'true' : undefined"
+        @click="requestNavigation($event, section)"
       >
         <span></span>
       </RouterLink>

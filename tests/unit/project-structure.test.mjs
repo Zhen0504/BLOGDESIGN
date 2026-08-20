@@ -18,6 +18,17 @@ const requiredFiles = [
   'src/components/layout/SectionIndicator.vue',
   'src/components/sections/SectionContent.vue',
   'src/components/projects/CompactProjectLink.vue',
+  'src/components/crystal-scene/CrystalScene.vue',
+  'src/components/crystal-scene/createWelcomeCrystalScene.js',
+  'src/components/crystal-scene/createCrystalMotionController.js',
+  'src/components/crystal-scene/createSectionTransitionController.js',
+  'src/components/crystal-scene/createParticleGalaxy.js',
+  'src/components/crystal-scene/loadCrystalSystem.js',
+  'public/models/crystals/about.glb',
+  'public/models/crystals/development.glb',
+  'public/models/crystals/research.glb',
+  'public/models/crystals/contact.glb',
+  'public/models/crystals/center.glb',
   'src/styles/reset.css',
   'src/styles/variables.css',
   'src/styles/global.css',
@@ -44,6 +55,8 @@ assert.equal(packageJson.scripts.build, 'vite build')
 assert.equal(packageJson.dependencies.vue, '^3.5.0')
 assert.equal(packageJson.dependencies['vue-router'], '^4.5.0')
 assert.equal(packageJson.dependencies.ogl, '^1.0.11')
+assert.equal(packageJson.dependencies.three, '0.185.1')
+assert.equal(packageJson.dependencies.postprocessing, '6.39.4')
 
 const app = readFileSync(resolve(root, 'src/App.vue'), 'utf8')
 assert.match(app, /<RouterView \/>/)
@@ -121,7 +134,9 @@ assert.match(sectionContent, /getLatestProjects\(portfolio\.developmentProjects\
 assert.match(sectionContent, /getLatestProjects\(portfolio\.researchProjects\)/)
 assert.match(sectionContent, /v-if="portfolio\.contact\.email"/)
 assert.match(sectionContent, /rel="noopener noreferrer"/)
-assert.match(sectionContent, /<span>Orbit<\/span>[\s\S]*<span>Archive\.<\/span>/)
+assert.match(sectionContent, /<span>WELCOME<\/span>[\s\S]*<em>to<\/em> MY BLOG/)
+assert.match(sectionContent, /A personal space for development, research, and ideas\./)
+assert.match(sectionContent, /SCROLL TO EXPLORE/)
 assert.match(sectionContent, /个人简介/)
 assert.match(sectionContent, /开发项目/)
 assert.match(sectionContent, /科研项目/)
@@ -131,6 +146,25 @@ const overviewTemplate = sectionContent.match(
   /<template v-if="section\.id === '00'">([\s\S]*?)<\/template>/,
 )?.[1] ?? ''
 assert.doesNotMatch(overviewTemplate, /[\u3400-\u9fff]/)
+
+const portfolioView = readFileSync(resolve(root, 'src/views/PortfolioView.vue'), 'utf8')
+assert.match(portfolioView, /<CrystalScene/)
+assert.match(portfolioView, /addEventListener\('wheel'/)
+assert.match(portfolioView, /transitionLocked/)
+
+const welcomeScene = readFileSync(
+  resolve(root, 'src/components/crystal-scene/createWelcomeCrystalScene.js'),
+  'utf8',
+)
+assert.match(welcomeScene, /__WELCOME_CRYSTAL_SCENE__/)
+assert.match(welcomeScene, /visibilitychange/)
+assert.match(welcomeScene, /forceContextLoss/)
+
+const crystalManifest = readFileSync(
+  resolve(root, 'src/components/crystal-scene/crystalManifest.js'),
+  'utf8',
+)
+assert.doesNotMatch(crystalManifest, /https?:\/\//)
 
 const compactProjectLink = readFileSync(
   resolve(root, 'src/components/projects/CompactProjectLink.vue'),

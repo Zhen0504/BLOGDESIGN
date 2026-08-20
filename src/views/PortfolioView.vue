@@ -1,10 +1,16 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
+import CrystalScene from '../components/crystal-scene/CrystalScene.vue'
 import PortfolioHeader from '../components/layout/PortfolioHeader.vue'
 import SectionIndicator from '../components/layout/SectionIndicator.vue'
 import SectionContent from '../components/sections/SectionContent.vue'
-import { getSectionBySlug } from '../data/portfolio'
+import {
+  getSectionBySlug,
+  getSectionPath,
+  sectionDefinitions,
+} from '../data/portfolio'
 
 const props = defineProps({
   section: {
@@ -13,25 +19,101 @@ const props = defineProps({
   },
 })
 
+const router = useRouter()
 const activeSection = computed(() => getSectionBySlug(props.section))
+const transitionLocked = ref(false)
+let wheelDelta = 0
+let wheelResetTimer = 0
+
+async function navigateTo(section) {
+  if (!section || transitionLocked.value || section.id === activeSection.value.id) return
+  transitionLocked.value = true
+  wheelDelta = 0
+  try {
+    await router.push(getSectionPath(section))
+  } catch (error) {
+    transitionLocked.value = false
+    throw error
+  }
+}
+
+function moveByOffset(offset) {
+  const currentIndex = sectionDefinitions.findIndex(({ id }) => id === activeSection.value.id)
+  const nextIndex = Math.max(0, Math.min(sectionDefinitions.length - 1, currentIndex + offset))
+  if (nextIndex === currentIndex) return
+  navigateTo(sectionDefinitions[nextIndex])
+}
+
+function onWheel(event) {
+  if (Math.abs(event.deltaY) < Math.abs(event.deltaX)) return
+  event.preventDefault()
+  if (transitionLocked.value) return
+  wheelDelta += event.deltaY
+  window.clearTimeout(wheelResetTimer)
+  wheelResetTimer = window.setTimeout(() => { wheelDelta = 0 }, 180)
+  if (Math.abs(wheelDelta) < 42) return
+  moveByOffset(wheelDelta > 0 ? 1 : -1)
+  wheelDelta = 0
+}
+
+function onKeydown(event) {
+  if (event.key === 'ArrowDown' || event.key === 'PageDown') {
+    event.preventDefault()
+    moveByOffset(1)
+  } else if (event.key === 'ArrowUp' || event.key === 'PageUp') {
+    event.preventDefault()
+    moveByOffset(-1)
+  }
+}
+
+function onTransitionStart() {
+  transitionLocked.value = true
+}
+
+function onTransitionComplete() {
+  transitionLocked.value = false
+}
+
+onMounted(() => {
+  window.addEventListener('wheel', onWheel, { passive: false })
+  window.addEventListener('keydown', onKeydown)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('wheel', onWheel)
+  window.removeEventListener('keydown', onKeydown)
+  window.clearTimeout(wheelResetTimer)
+})
 </script>
 
 <template>
   <div class="portfolio-view" :data-section="activeSection.id">
+    <CrystalScene
+      :section-id="activeSection.id"
+      @transition-start="onTransitionStart"
+      @transition-complete="onTransitionComplete"
+    />
     <div class="ambient-background" aria-hidden="true"></div>
-    <div class="scene-layer" aria-hidden="true"></div>
 
-    <PortfolioHeader :active-section="activeSection" />
+    <PortfolioHeader
+      :active-section="activeSection"
+      :navigation-locked="transitionLocked"
+      @navigate="navigateTo"
+    />
 
     <main
       class="portfolio-main"
-      :class="`content-${activeSection.contentSide}`"
+      :class="[`content-${activeSection.contentSide}`, { 'is-transitioning': transitionLocked }]"
       :aria-label="activeSection.navLabel"
     >
       <SectionContent :section="activeSection" />
     </main>
 
-    <SectionIndicator :active-section="activeSection" />
+    <SectionIndicator
+      :active-section="activeSection"
+      :navigation-locked="transitionLocked"
+      @navigate="navigateTo"
+    />
   </div>
 </template>
 
@@ -42,49 +124,56 @@ const activeSection = computed(() => getSectionBySlug(props.section))
   min-height: 100svh;
   overflow: hidden;
   background:
-    radial-gradient(circle at 62% 48%, rgba(55, 50, 137, 0.16), transparent 33%),
-    radial-gradient(circle at 34% 74%, rgba(25, 45, 112, 0.1), transparent 38%),
+    radial-gradient(circle at 70% 46%, rgba(55, 50, 137, 0.08), transparent 38%),
     var(--color-page);
 }
 
-.ambient-background,
-.scene-layer {
+.ambient-background {
   position: absolute;
   inset: 0;
   pointer-events: none;
 }
 
 .ambient-background {
-  z-index: -2;
-  opacity: 0.72;
-  background-image:
-    radial-gradient(circle at 8% 22%, rgba(194, 202, 255, 0.72) 0 0.65px, transparent 0.9px),
-    radial-gradient(circle at 76% 18%, rgba(103, 117, 255, 0.7) 0 0.7px, transparent 1px),
-    radial-gradient(circle at 62% 72%, rgba(241, 191, 97, 0.54) 0 0.65px, transparent 0.95px),
-    radial-gradient(circle at 28% 82%, rgba(145, 154, 236, 0.55) 0 0.7px, transparent 1px);
-  background-size: 190px 170px, 230px 210px, 280px 250px, 320px 290px;
+  z-index: 1;
+  background:
+    linear-gradient(90deg, rgba(2, 4, 16, 0.92) 0%, rgba(2, 4, 16, 0.78) 28%, transparent 52%),
+    radial-gradient(circle at 14% 54%, rgba(37, 45, 112, 0.12), transparent 38%);
 }
 
 .ambient-background::after {
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, rgba(3, 5, 18, 0.86), transparent 38%, transparent 68%, rgba(3, 5, 18, 0.32));
+  background: linear-gradient(180deg, rgba(1, 2, 11, 0.16), transparent 18%, transparent 78%, rgba(1, 2, 11, 0.36));
   content: '';
-}
-
-.scene-layer {
-  z-index: -1;
 }
 
 .portfolio-main {
   position: relative;
   z-index: 4;
   display: grid;
-  grid-template-columns: minmax(0, 0.78fr) minmax(420px, 1fr);
+  grid-template-columns: minmax(370px, 0.62fr) minmax(0, 1fr);
   align-items: center;
   width: 100%;
   min-height: 100svh;
-  padding: calc(var(--header-height) + 34px) clamp(80px, 6vw, 112px) 64px;
+  padding: calc(var(--header-height) + 34px) clamp(68px, 5.4vw, 104px) 64px;
+  pointer-events: none;
+}
+
+.portfolio-main :deep(a),
+.portfolio-main :deep(button) {
+  pointer-events: auto;
+}
+
+.portfolio-main :deep(.section-content) {
+  transition:
+    opacity 360ms ease,
+    transform 520ms cubic-bezier(0.2, 0.75, 0.2, 1);
+}
+
+.portfolio-main.is-transitioning :deep(.section-content) {
+  opacity: 0;
+  transform: translateX(-24px);
 }
 
 .portfolio-main.content-left :deep(.section-content) {
@@ -99,7 +188,7 @@ const activeSection = computed(() => getSectionBySlug(props.section))
 
 @media (max-width: 980px) {
   .portfolio-main {
-    grid-template-columns: minmax(0, 0.9fr) minmax(340px, 1fr);
+    grid-template-columns: minmax(340px, 0.72fr) minmax(0, 1fr);
     padding-right: 72px;
     padding-left: 48px;
   }
@@ -117,6 +206,7 @@ const activeSection = computed(() => getSectionBySlug(props.section))
       calc(var(--header-height) + 76px)
       24px
       calc(92px + env(safe-area-inset-bottom));
+    pointer-events: none;
   }
 
   .portfolio-main.content-left :deep(.section-content),

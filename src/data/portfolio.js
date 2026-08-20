@@ -44,8 +44,8 @@ export const sectionDefinitions = Object.freeze([
 export const portfolio = Object.freeze({
   brand: {
     name: 'ZHEN',
-    title: 'Orbit Archive.',
-    subtitle: 'ABOUT · DEVELOPMENT · RESEARCH · CONTACT',
+    title: 'WELCOME to MY BLOG',
+    subtitle: 'A personal space for development, research, and ideas.',
   },
   profile: {
     summary: '',

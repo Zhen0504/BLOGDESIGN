@@ -1,12 +1,24 @@
 <script setup>
 import { sectionDefinitions, getSectionPath } from '../../data/portfolio'
 
-defineProps({
+const props = defineProps({
   activeSection: {
     type: Object,
     required: true,
   },
+  navigationLocked: {
+    type: Boolean,
+    default: false,
+  },
 })
+
+const emit = defineEmits(['navigate'])
+
+function requestNavigation(event, section) {
+  event.preventDefault()
+  if (props.navigationLocked) return
+  emit('navigate', section)
+}
 
 const navigationSections = sectionDefinitions.filter((section) => section.id !== '00')
 </script>
@@ -24,6 +36,8 @@ const navigationSections = sectionDefinitions.filter((section) => section.id !==
         class="portfolio-nav-link"
         :to="getSectionPath(section)"
         :aria-current="activeSection.id === section.id ? 'page' : undefined"
+        :aria-disabled="navigationLocked ? 'true' : undefined"
+        @click="requestNavigation($event, section)"
       >
         {{ section.navLabel }}
       </RouterLink>
@@ -78,6 +92,10 @@ const navigationSections = sectionDefinitions.filter((section) => section.id !==
   letter-spacing: 0.28em;
   transition: color 180ms ease;
   white-space: nowrap;
+}
+
+.portfolio-nav-link[aria-disabled='true'] {
+  cursor: wait;
 }
 
 .portfolio-nav-link::after {
