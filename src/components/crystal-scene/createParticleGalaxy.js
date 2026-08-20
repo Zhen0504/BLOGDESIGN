@@ -5,8 +5,6 @@ import {
   Color,
   Float32BufferAttribute,
   Group,
-  Line,
-  LineBasicMaterial,
   Points,
   ShaderMaterial,
   Vector3,
@@ -134,26 +132,23 @@ function createRibbonLayer(count, random, options) {
     const color = new Color(options.palette[Math.floor(random() * options.palette.length)])
     data.colors.push(color.r, color.g, color.b)
     data.phases.push(t * Math.PI * 11 + random() * 1.5)
-    data.weights.push(options.weight[0] + Math.pow(random(), options.weightPower) * options.weight[1])
+    const breakWave = (
+      Math.sin(t * Math.PI * 6 + options.breakPhase)
+      + Math.sin(t * Math.PI * 14 - options.breakPhase * 0.7) * 0.46
+    )
+    const breakWeight = breakWave < options.breakThreshold
+      ? 0.12 + random() * 0.22
+      : 0.72 + random() * 0.38
+    data.weights.push(
+      (options.weight[0] + Math.pow(random(), options.weightPower) * options.weight[1])
+      * breakWeight,
+    )
     data.stretches.push(options.stretch[0] + random() * options.stretch[1])
   }
 
   const geometry = new BufferGeometry()
   addAttributes(geometry, data)
   return new Points(geometry, createPointMaterial({ size: options.size, opacity: options.opacity, drift: options.drift }))
-}
-
-function createFilament() {
-  const geometry = new BufferGeometry().setFromPoints(galaxyCurve().getSpacedPoints(420))
-  const material = new LineBasicMaterial({
-    color: '#5f4ad5',
-    transparent: true,
-    opacity: 0.34,
-    blending: AdditiveBlending,
-    depthWrite: false,
-    toneMapped: false,
-  })
-  return new Line(geometry, material)
 }
 
 export function createParticleGalaxy(quality) {
@@ -163,27 +158,29 @@ export function createParticleGalaxy(quality) {
   group.position.x = 1.12
 
   const stars = createStars(quality.starCount, random)
-  const dust = createRibbonLayer(Math.round(quality.ribbonCount * 1.05), random, {
+  const dust = createRibbonLayer(Math.round(quality.ribbonCount * 1.22), random, {
     jitter: 0.014, spread: 0.46, depth: 0.38,
     palette: ['#4937b8', '#5d52df', '#7771ee', '#aaa6ec'],
     weight: [0.34, 0.82], weightPower: 1.4, stretch: [1, 0.7],
-    size: 3.5, opacity: 0.64, drift: 0.065,
+    breakPhase: 0.42, breakThreshold: -0.72,
+    size: 4.2, opacity: 0.69, drift: 0.065,
   })
-  const mist = createRibbonLayer(Math.round(quality.ribbonCount * 0.34), random, {
+  const mist = createRibbonLayer(Math.round(quality.ribbonCount * 0.46), random, {
     jitter: 0.009, spread: 0.24, depth: 0.24,
     palette: ['#5844d5', '#6f58ef', '#9689ff'],
     weight: [0.5, 1.25], weightPower: 1.8, stretch: [1.4, 1.5],
-    size: 5.4, opacity: 0.3, drift: 0.052,
+    breakPhase: 2.18, breakThreshold: -0.56,
+    size: 6.25, opacity: 0.34, drift: 0.052,
   })
-  const highlights = createRibbonLayer(quality.compact ? 34 : 58, random, {
+  const highlights = createRibbonLayer(quality.compact ? 48 : 86, random, {
     jitter: 0.004, spread: 0.16, depth: 0.16,
     palette: ['#a99cff', '#c8c5ff', '#7365ff', '#caa66b'],
     weight: [0.72, 1.45], weightPower: 2.8, stretch: [1, 0.5],
-    size: 4.8, opacity: 0.86, drift: 0.04,
+    breakPhase: 4.36, breakThreshold: -0.92,
+    size: 5.65, opacity: 0.9, drift: 0.04,
   })
-  const filament = createFilament()
   const animated = [stars, dust, mist, highlights]
-  group.add(filament, stars, dust, mist, highlights)
+  group.add(stars, dust, mist, highlights)
   group.userData.restPosition = group.position.clone()
 
   return {
@@ -192,15 +189,12 @@ export function createParticleGalaxy(quality) {
       animated.forEach((points, index) => {
         points.material.uniforms.uTime.value = time * (1 - index * 0.05)
       })
-      filament.material.opacity = 0.3 + Math.sin(time * 0.34) * 0.045
     },
     dispose() {
       animated.forEach((points) => {
         points.geometry.dispose()
         points.material.dispose()
       })
-      filament.geometry.dispose()
-      filament.material.dispose()
     },
   }
 }

@@ -19,6 +19,7 @@ const requiredFiles = [
   'src/components/sections/SectionContent.vue',
   'src/components/projects/CompactProjectLink.vue',
   'src/components/effects/ParticleText.vue',
+  'src/components/intro/ZhenIntro.vue',
   'src/components/crystal-scene/CrystalScene.vue',
   'src/components/crystal-scene/createWelcomeCrystalScene.js',
   'src/components/crystal-scene/createCrystalMotionController.js',
@@ -140,6 +141,10 @@ assert.match(sectionContent, /<ParticleText[\s\S]*text="WELCOME"/)
 assert.match(sectionContent, /text="to"/)
 assert.match(sectionContent, /text="MY BLOG"/)
 assert.match(sectionContent, /aria-label="WELCOME to MY BLOG"/)
+assert.match(sectionContent, /text="个 人 简 介"/)
+assert.match(sectionContent, /text="开 发 项 目"/)
+assert.match(sectionContent, /text="科 研 项 目"/)
+assert.match(sectionContent, /text="联 系 方 式"/)
 assert.match(sectionContent, /A personal space for development, research, and ideas\./)
 assert.match(sectionContent, /SCROLL TO EXPLORE/)
 assert.match(sectionContent, /个人简介/)
@@ -163,6 +168,8 @@ assert.doesNotMatch(particleText, /from ['"]react['"]/)
 
 const portfolioView = readFileSync(resolve(root, 'src/views/PortfolioView.vue'), 'utf8')
 assert.match(portfolioView, /<CrystalScene/)
+assert.match(portfolioView, /<ZhenIntro/)
+assert.match(portfolioView, /@scene-ready="sceneReady = true"/)
 assert.match(portfolioView, /addEventListener\('wheel'/)
 assert.match(portfolioView, /transitionLocked/)
 
@@ -173,6 +180,22 @@ const welcomeScene = readFileSync(
 assert.match(welcomeScene, /__WELCOME_CRYSTAL_SCENE__/)
 assert.match(welcomeScene, /visibilitychange/)
 assert.match(welcomeScene, /forceContextLoss/)
+
+const zhenIntro = readFileSync(
+  resolve(root, 'src/components/intro/ZhenIntro.vue'),
+  'utf8',
+)
+assert.match(zhenIntro, />ZHEN</)
+assert.match(zhenIntro, /zhen-draw/)
+assert.match(zhenIntro, /sceneReady/)
+assert.doesNotMatch(zhenIntro, /from ['"]react['"]/)
+
+const particleGalaxy = readFileSync(
+  resolve(root, 'src/components/crystal-scene/createParticleGalaxy.js'),
+  'utf8',
+)
+assert.doesNotMatch(particleGalaxy, /LineBasicMaterial/)
+assert.doesNotMatch(particleGalaxy, /createFilament/)
 
 const crystalManifest = readFileSync(
   resolve(root, 'src/components/crystal-scene/crystalManifest.js'),

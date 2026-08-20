@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import CrystalScene from '../components/crystal-scene/CrystalScene.vue'
+import ZhenIntro from '../components/intro/ZhenIntro.vue'
 import PortfolioHeader from '../components/layout/PortfolioHeader.vue'
 import SectionIndicator from '../components/layout/SectionIndicator.vue'
 import SectionContent from '../components/sections/SectionContent.vue'
@@ -24,13 +25,17 @@ const activeSection = computed(() => getSectionBySlug(props.section))
 const displayedSection = ref(activeSection.value)
 const transitionLocked = ref(false)
 const contentHidden = ref(false)
+const sceneReady = ref(false)
+const introComplete = ref(false)
+const introRevealing = ref(false)
+const interactionLocked = computed(() => transitionLocked.value || !introComplete.value)
 let wheelDelta = 0
 let wheelResetTimer = 0
 let contentSwapTimer = 0
 let contentRevealTimer = 0
 
 async function navigateTo(section) {
-  if (!section || transitionLocked.value || section.id === activeSection.value.id) return
+  if (!section || interactionLocked.value || section.id === activeSection.value.id) return
   transitionLocked.value = true
   wheelDelta = 0
   try {
@@ -51,7 +56,7 @@ function moveByOffset(offset) {
 function onWheel(event) {
   if (Math.abs(event.deltaY) < Math.abs(event.deltaX)) return
   event.preventDefault()
-  if (transitionLocked.value) return
+  if (interactionLocked.value) return
   wheelDelta += event.deltaY
   window.clearTimeout(wheelResetTimer)
   wheelResetTimer = window.setTimeout(() => { wheelDelta = 0 }, 180)
@@ -76,6 +81,15 @@ function onTransitionStart() {
 
 function onTransitionComplete() {
   transitionLocked.value = false
+}
+
+function onIntroRevealStart() {
+  introRevealing.value = true
+}
+
+function onIntroComplete() {
+  introComplete.value = true
+  introRevealing.value = false
 }
 
 watch(() => activeSection.value.id, () => {
@@ -106,32 +120,49 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="portfolio-view" :data-section="activeSection.id">
-    <CrystalScene
-      :section-id="activeSection.id"
-      @transition-start="onTransitionStart"
-      @transition-complete="onTransitionComplete"
-    />
-    <div class="ambient-background" aria-hidden="true"></div>
+  <div
+    class="portfolio-view"
+    :class="{
+      'intro-active': !introComplete,
+      'intro-revealing': introRevealing,
+    }"
+    :data-section="activeSection.id"
+  >
+    <div class="portfolio-stage">
+      <CrystalScene
+        :section-id="activeSection.id"
+        @scene-ready="sceneReady = true"
+        @transition-start="onTransitionStart"
+        @transition-complete="onTransitionComplete"
+      />
+      <div class="ambient-background" aria-hidden="true"></div>
 
-    <PortfolioHeader
-      :active-section="activeSection"
-      :navigation-locked="transitionLocked"
-      @navigate="navigateTo"
-    />
+      <PortfolioHeader
+        :active-section="activeSection"
+        :navigation-locked="interactionLocked"
+        @navigate="navigateTo"
+      />
 
-    <main
-      class="portfolio-main"
-      :class="[`content-${displayedSection.contentSide}`, { 'content-hidden': contentHidden }]"
-      :aria-label="displayedSection.navLabel"
-    >
-      <SectionContent :section="displayedSection" />
-    </main>
+      <main
+        class="portfolio-main"
+        :class="[`content-${displayedSection.contentSide}`, { 'content-hidden': contentHidden }]"
+        :aria-label="displayedSection.navLabel"
+      >
+        <SectionContent :section="displayedSection" />
+      </main>
 
-    <SectionIndicator
-      :active-section="activeSection"
-      :navigation-locked="transitionLocked"
-      @navigate="navigateTo"
+      <SectionIndicator
+        :active-section="activeSection"
+        :navigation-locked="interactionLocked"
+        @navigate="navigateTo"
+      />
+    </div>
+
+    <ZhenIntro
+      v-if="!introComplete"
+      :scene-ready="sceneReady"
+      @reveal-start="onIntroRevealStart"
+      @complete="onIntroComplete"
     />
   </div>
 </template>
@@ -145,6 +176,32 @@ onBeforeUnmount(() => {
   background:
     radial-gradient(circle at 70% 46%, rgba(55, 50, 137, 0.08), transparent 38%),
     var(--color-page);
+}
+
+.portfolio-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  filter: none;
+  transform: scale(1);
+  transform-origin: center;
+  transition:
+    filter 1s cubic-bezier(0.22, 0.7, 0.2, 1),
+    transform 1s cubic-bezier(0.22, 0.7, 0.2, 1);
+}
+
+.portfolio-view.intro-active .portfolio-stage {
+  filter: blur(14px) brightness(0.58) saturate(0.82);
+  transform: scale(1.035);
+}
+
+.portfolio-view.intro-active:not(.intro-revealing) .portfolio-stage {
+  transition: none;
+}
+
+.portfolio-view.intro-revealing .portfolio-stage {
+  filter: blur(0) brightness(1) saturate(1);
+  transform: scale(1);
 }
 
 .ambient-background {

@@ -10,8 +10,8 @@ export function createQualityProfile(renderer, viewport = window) {
     compact,
     reducedMotion,
     pixelRatio: Math.min(viewport.devicePixelRatio || 1, compact ? 1 : 1.25),
-    starCount: compact ? 260 : 520,
-    ribbonCount: compact ? 520 : 980,
+    starCount: compact ? 380 : 760,
+    ribbonCount: compact ? 720 : 1380,
     depthOfField: webgl2 && !compact && !reducedMotion,
     bloomIntensity: compact ? 0.62 : 0.82,
   })

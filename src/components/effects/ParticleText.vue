@@ -81,6 +81,10 @@ async function setup() {
   }
 
   function render(now) {
+    if (document.hidden) {
+      animationFrame = 0
+      return
+    }
     context.clearRect(0, 0, width, height)
     pointer.smoothX += (pointer.x - pointer.smoothX) * 0.16
     pointer.smoothY += (pointer.y - pointer.smoothY) * 0.16
@@ -261,6 +265,15 @@ async function setup() {
     pointer.active = false
   }
 
+  function onVisibilityChange() {
+    if (document.hidden) {
+      cancelAnimationFrame(animationFrame)
+      animationFrame = 0
+    } else if (!animationFrame && particles.length) {
+      animationFrame = requestAnimationFrame(render)
+    }
+  }
+
   const motionQuery = window.matchMedia?.('(prefers-reduced-motion: reduce)')
   const onMotionChange = (event) => {
     reducedMotion = event.matches
@@ -271,6 +284,7 @@ async function setup() {
   surface.addEventListener('pointerenter', onPointerEnter)
   surface.addEventListener('pointermove', updatePointer)
   surface.addEventListener('pointerleave', onPointerLeave)
+  document.addEventListener('visibilitychange', onVisibilityChange)
   motionQuery?.addEventListener('change', onMotionChange)
   sampleText()
 
@@ -280,6 +294,7 @@ async function setup() {
     surface.removeEventListener('pointerenter', onPointerEnter)
     surface.removeEventListener('pointermove', updatePointer)
     surface.removeEventListener('pointerleave', onPointerLeave)
+    document.removeEventListener('visibilitychange', onVisibilityChange)
     motionQuery?.removeEventListener('change', onMotionChange)
     cancelAnimationFrame(animationFrame)
     cancelAnimationFrame(resizeFrame)

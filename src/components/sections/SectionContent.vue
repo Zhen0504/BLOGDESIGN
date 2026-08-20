@@ -68,7 +68,24 @@ const latestResearchProjects = computed(() => (
 
       <template v-else-if="section.id === '01'">
         <p class="chapter-label">CHAPTER <strong>01</strong> / ABOUT</p>
-        <h1>个人简介</h1>
+        <h1 class="section-particle-title" aria-label="个人简介">
+          <span class="particle-title__accessible">个人简介</span>
+          <ParticleText
+            text="个 人 简 介"
+            color="#eeeaf7"
+            highlight-color="#8064ff"
+            :particle-size="1.5"
+            :density="3"
+            :scatter="92"
+            :gather-duration="980"
+            :stagger="220"
+            :pointer-repel="24"
+            :repel-radius="92"
+            :idle-drift="0.38"
+            font-size="clamp(52px, 6.2vw, 94px)"
+            font-weight="400"
+          />
+        </h1>
         <p v-if="portfolio.profile.summary" class="section-summary">
           {{ portfolio.profile.summary }}
         </p>
@@ -82,7 +99,24 @@ const latestResearchProjects = computed(() => (
 
       <template v-else-if="section.id === '02'">
         <p class="chapter-label">CHAPTER <strong>02</strong> / DEVELOPMENT</p>
-        <h1>开发项目</h1>
+        <h1 class="section-particle-title" aria-label="开发项目">
+          <span class="particle-title__accessible">开发项目</span>
+          <ParticleText
+            text="开 发 项 目"
+            color="#eeeaf7"
+            highlight-color="#8064ff"
+            :particle-size="1.5"
+            :density="3"
+            :scatter="92"
+            :gather-duration="980"
+            :stagger="220"
+            :pointer-repel="24"
+            :repel-radius="92"
+            :idle-drift="0.38"
+            font-size="clamp(52px, 6.2vw, 94px)"
+            font-weight="400"
+          />
+        </h1>
         <p class="section-kicker">最近完成</p>
         <div v-if="latestDevelopmentProjects.length" class="project-links">
           <CompactProjectLink
@@ -97,7 +131,24 @@ const latestResearchProjects = computed(() => (
 
       <template v-else-if="section.id === '03'">
         <p class="chapter-label">CHAPTER <strong>03</strong> / RESEARCH</p>
-        <h1>科研项目</h1>
+        <h1 class="section-particle-title" aria-label="科研项目">
+          <span class="particle-title__accessible">科研项目</span>
+          <ParticleText
+            text="科 研 项 目"
+            color="#eeeaf7"
+            highlight-color="#8064ff"
+            :particle-size="1.5"
+            :density="3"
+            :scatter="92"
+            :gather-duration="980"
+            :stagger="220"
+            :pointer-repel="24"
+            :repel-radius="92"
+            :idle-drift="0.38"
+            font-size="clamp(52px, 6.2vw, 94px)"
+            font-weight="400"
+          />
+        </h1>
         <p class="section-kicker">近期研究</p>
         <div v-if="latestResearchProjects.length" class="project-links">
           <CompactProjectLink
@@ -112,7 +163,24 @@ const latestResearchProjects = computed(() => (
 
       <template v-else>
         <p class="chapter-label">CHAPTER <strong>04</strong> / CONTACT</p>
-        <h1>联系方式</h1>
+        <h1 class="section-particle-title" aria-label="联系方式">
+          <span class="particle-title__accessible">联系方式</span>
+          <ParticleText
+            text="联 系 方 式"
+            color="#eeeaf7"
+            highlight-color="#8064ff"
+            :particle-size="1.5"
+            :density="3"
+            :scatter="92"
+            :gather-duration="980"
+            :stagger="220"
+            :pointer-repel="24"
+            :repel-radius="92"
+            :idle-drift="0.38"
+            font-size="clamp(52px, 6.2vw, 94px)"
+            font-weight="400"
+          />
+        </h1>
         <div class="contact-links">
           <a
             class="contact-link"
@@ -162,7 +230,8 @@ const latestResearchProjects = computed(() => (
   grid-template-rows: 88px 88px;
 }
 
-.overview-title__accessible {
+.overview-title__accessible,
+.particle-title__accessible {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -170,6 +239,16 @@ const latestResearchProjects = computed(() => (
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
+}
+
+.section-particle-title {
+  width: min(520px, 100%);
+  height: clamp(78px, 8.3vw, 122px);
+  letter-spacing: 0 !important;
+}
+
+.section-particle-title :deep(.particle-text) {
+  font-family: var(--font-serif-cn);
 }
 
 .overview-title__second-line {
@@ -319,6 +398,10 @@ const latestResearchProjects = computed(() => (
   .section-content h1 {
     margin-top: 20px;
     font-size: clamp(42px, 13vw, 68px);
+  }
+
+  .section-particle-title {
+    height: clamp(62px, 18vw, 88px);
   }
 
   .overview-title {
