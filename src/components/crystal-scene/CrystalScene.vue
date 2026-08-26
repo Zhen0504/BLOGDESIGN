@@ -10,7 +10,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['scene-ready', 'transition-start', 'transition-complete'])
+const emit = defineEmits(['scene-ready', 'scene-fallback', 'transition-start', 'transition-complete'])
 const canvas = ref(null)
 const status = ref('loading')
 const statusMessage = ref('Loading crystal system 0 / 5')
@@ -35,6 +35,7 @@ onMounted(async () => {
     emit('scene-ready')
   } catch (error) {
     console.error('Welcome crystal scene failed to initialize.', error)
+    emit('scene-fallback')
   }
 })
 

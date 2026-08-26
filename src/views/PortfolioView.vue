@@ -3,7 +3,12 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import CrystalScene from '../components/crystal-scene/CrystalScene.vue'
+import LoadingOverlay from '../components/intro/LoadingOverlay.vue'
 import ZhenIntro from '../components/intro/ZhenIntro.vue'
+import {
+  hasSeenSessionIntro,
+  markSessionIntroSeen,
+} from '../components/intro/sessionIntro'
 import PortfolioHeader from '../components/layout/PortfolioHeader.vue'
 import SectionIndicator from '../components/layout/SectionIndicator.vue'
 import SectionContent from '../components/sections/SectionContent.vue'
@@ -26,9 +31,18 @@ const displayedSection = ref(activeSection.value)
 const transitionLocked = ref(false)
 const contentHidden = ref(false)
 const sceneReady = ref(false)
-const introComplete = ref(false)
+const sceneSettled = ref(false)
+const returningSession = hasSeenSessionIntro()
+const showSessionIntro = !returningSession
+const introComplete = ref(returningSession)
 const introRevealing = ref(false)
-const interactionLocked = computed(() => transitionLocked.value || !introComplete.value)
+const loadingOverlayActive = ref(false)
+const returningLoadPending = computed(() => returningSession && !sceneSettled.value)
+const interactionLocked = computed(() => (
+  transitionLocked.value
+  || !introComplete.value
+  || loadingOverlayActive.value
+))
 let wheelDelta = 0
 let wheelResetTimer = 0
 let contentSwapTimer = 0
@@ -83,6 +97,16 @@ function onTransitionComplete() {
   transitionLocked.value = false
 }
 
+function onSceneReady() {
+  sceneReady.value = true
+  sceneSettled.value = true
+}
+
+function onSceneFallback() {
+  sceneReady.value = false
+  sceneSettled.value = true
+}
+
 function onIntroRevealStart() {
   introRevealing.value = true
 }
@@ -90,6 +114,7 @@ function onIntroRevealStart() {
 function onIntroComplete() {
   introComplete.value = true
   introRevealing.value = false
+  markSessionIntroSeen()
 }
 
 watch(() => activeSection.value.id, () => {
@@ -131,7 +156,8 @@ onBeforeUnmount(() => {
     <div class="portfolio-stage">
       <CrystalScene
         :section-id="activeSection.id"
-        @scene-ready="sceneReady = true"
+        @scene-ready="onSceneReady"
+        @scene-fallback="onSceneFallback"
         @transition-start="onTransitionStart"
         @transition-complete="onTransitionComplete"
       />
@@ -159,10 +185,15 @@ onBeforeUnmount(() => {
     </div>
 
     <ZhenIntro
-      v-if="!introComplete"
+      v-if="showSessionIntro && !introComplete"
       :scene-ready="sceneReady"
       @reveal-start="onIntroRevealStart"
       @complete="onIntroComplete"
+    />
+
+    <LoadingOverlay
+      :pending="returningLoadPending"
+      @active-change="loadingOverlayActive = $event"
     />
   </div>
 </template>

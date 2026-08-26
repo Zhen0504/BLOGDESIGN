@@ -72,3 +72,31 @@
 - [x] Browser interaction, layout, overflow, and console verification
 
 final result: passed
+
+---
+
+# Design QA — Session intro and genuine loading state
+
+## Scope
+
+- Show the ZHEN line-drawing intro once per browser-tab session.
+- Skip ZHEN on later reloads in the same tab.
+- Show LOADING only when the initial 3D scene remains unresolved for more than 300 ms.
+- Keep normal 00–04 camera transitions free of the loading overlay.
+
+## Browser verification
+
+- Fresh local tab: the ZHEN status overlay was present during the draw phase and blocked navigation until its reveal completed.
+- Same-tab reload: ZHEN was skipped. The cached local 3D scene completed inside the 300 ms grace period, so LOADING correctly did not flash.
+- ABOUT → DEVELOPMENT → RESEARCH → CONTACT: every route resolved to the correct heading and no `role="status"` loading overlay appeared during camera transitions.
+- Console: 0 errors and 0 warnings.
+
+## Implementation checks
+
+- Session state is isolated behind safe `sessionStorage` helpers and degrades gracefully when storage access throws.
+- ZHEN and LOADING share the same Vue monoline wordmark component; no React dependency was introduced.
+- LOADING uses the approved copy: `NETWORK CONDITIONS MAY DELAY THE EXPERIENCE.`
+- Delayed-show, minimum-visible, settle, fade, hard-timeout, and reduced-motion behavior are covered by structure tests.
+- WebGL initialization failure settles the loader through the scene fallback event rather than leaving the interface locked.
+
+final result: passed

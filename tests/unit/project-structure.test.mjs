@@ -19,7 +19,10 @@ const requiredFiles = [
   'src/components/sections/SectionContent.vue',
   'src/components/projects/CompactProjectLink.vue',
   'src/components/effects/ParticleText.vue',
+  'src/components/intro/LineWordmark.vue',
+  'src/components/intro/LoadingOverlay.vue',
   'src/components/intro/ZhenIntro.vue',
+  'src/components/intro/sessionIntro.js',
   'src/components/crystal-scene/CrystalScene.vue',
   'src/components/crystal-scene/createWelcomeCrystalScene.js',
   'src/components/crystal-scene/createCrystalMotionController.js',
@@ -171,7 +174,12 @@ assert.doesNotMatch(portfolioView, /linear-gradient\((?:90|270)deg/)
 assert.doesNotMatch(portfolioView, /data-section=['"]02['"]\]\s+\.ambient-background/)
 assert.match(portfolioView, /<CrystalScene/)
 assert.match(portfolioView, /<ZhenIntro/)
-assert.match(portfolioView, /@scene-ready="sceneReady = true"/)
+assert.match(portfolioView, /<LoadingOverlay/)
+assert.match(portfolioView, /@scene-ready="onSceneReady"/)
+assert.match(portfolioView, /@scene-fallback="onSceneFallback"/)
+assert.match(portfolioView, /returningSession && !sceneSettled\.value/)
+assert.match(portfolioView, /showSessionIntro && !introComplete/)
+assert.match(portfolioView, /markSessionIntroSeen\(\)/)
 assert.match(portfolioView, /addEventListener\('wheel'/)
 assert.match(portfolioView, /transitionLocked/)
 
@@ -188,13 +196,58 @@ const zhenIntro = readFileSync(
   'utf8',
 )
 assert.match(zhenIntro, /aria-label="ZHEN — loading portfolio"/)
-assert.match(zhenIntro, /pathLength="360"/)
-assert.match(zhenIntro, /zhen-dash-array/)
-assert.match(zhenIntro, /zhen-dash-offset/)
+assert.match(zhenIntro, /<LineWordmark/)
+assert.match(zhenIntro, /word="ZHEN"/)
 assert.match(zhenIntro, /sceneReady/)
 assert.doesNotMatch(zhenIntro, /feGaussianBlur/)
 assert.doesNotMatch(zhenIntro, /drop-shadow/)
 assert.doesNotMatch(zhenIntro, /from ['"]react['"]/)
+
+const lineWordmark = readFileSync(
+  resolve(root, 'src/components/intro/LineWordmark.vue'),
+  'utf8',
+)
+assert.match(lineWordmark, /value === 'ZHEN' \|\| value === 'LOADING'/)
+assert.match(lineWordmark, /pathLength="360"/)
+assert.match(lineWordmark, /line-wordmark-dash-array/)
+assert.match(lineWordmark, /line-wordmark-dash-offset/)
+assert.match(lineWordmark, /prefers-reduced-motion/)
+assert.doesNotMatch(lineWordmark, /from ['"]react['"]/)
+
+const loadingOverlay = readFileSync(
+  resolve(root, 'src/components/intro/LoadingOverlay.vue'),
+  'utf8',
+)
+assert.match(loadingOverlay, /word="LOADING"/)
+assert.match(loadingOverlay, /NETWORK CONDITIONS MAY DELAY THE EXPERIENCE\./)
+assert.match(loadingOverlay, /const SHOW_DELAY = 300/)
+assert.match(loadingOverlay, /const MIN_VISIBLE = 500/)
+assert.match(loadingOverlay, /const EXIT_CAP = 700/)
+assert.match(loadingOverlay, /const FADE_DURATION = 400/)
+assert.match(loadingOverlay, /const HARD_TIMEOUT = 10000/)
+assert.match(loadingOverlay, /backdrop-filter/)
+assert.doesNotMatch(loadingOverlay, /from ['"]react['"]/)
+
+const sessionIntroModuleUrl = pathToFileURL(resolve(
+  root,
+  'src/components/intro/sessionIntro.js',
+)).href
+const {
+  INTRO_SESSION_KEY,
+  hasSeenSessionIntro,
+  markSessionIntroSeen,
+} = await import(sessionIntroModuleUrl)
+const sessionEntries = new Map()
+const fakeSessionStorage = {
+  getItem: (key) => sessionEntries.get(key) ?? null,
+  setItem: (key, value) => sessionEntries.set(key, value),
+}
+assert.equal(hasSeenSessionIntro(fakeSessionStorage), false)
+assert.equal(markSessionIntroSeen(fakeSessionStorage), true)
+assert.equal(sessionEntries.get(INTRO_SESSION_KEY), '1')
+assert.equal(hasSeenSessionIntro(fakeSessionStorage), true)
+assert.equal(hasSeenSessionIntro({ getItem: () => { throw new Error('blocked') } }), false)
+assert.equal(markSessionIntroSeen({ setItem: () => { throw new Error('blocked') } }), false)
 
 const particleGalaxy = readFileSync(
   resolve(root, 'src/components/crystal-scene/createParticleGalaxy.js'),
