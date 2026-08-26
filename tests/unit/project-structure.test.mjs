@@ -209,6 +209,7 @@ const lineWordmark = readFileSync(
 )
 assert.match(lineWordmark, /value === 'ZHEN' \|\| value === 'LOADING'/)
 assert.match(lineWordmark, /pathLength="360"/)
+assert.match(lineWordmark, /\.line-wordmark__dash\s*\{[^}]*stroke-dasharray:\s*0 1 359 0;[^}]*stroke-dashoffset:\s*365;/s)
 assert.match(lineWordmark, /line-wordmark-dash-array/)
 assert.match(lineWordmark, /line-wordmark-dash-offset/)
 assert.match(lineWordmark, /prefers-reduced-motion/)

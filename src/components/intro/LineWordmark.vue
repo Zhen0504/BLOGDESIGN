@@ -100,19 +100,17 @@ const glyphs = computed(() => [...props.word].map((letter, index) => ({
   stroke-width: 5.2;
   stroke-linecap: round;
   stroke-linejoin: round;
+  stroke-dasharray: 0 1 359 0;
+  stroke-dashoffset: 365;
 }
 
 .line-wordmark[data-animation='once'] .line-wordmark__dash {
-  stroke-dasharray: 0 1 359 0;
-  stroke-dashoffset: 365;
   animation:
     line-wordmark-dash-array 2.5s ease-in-out var(--line-delay) both,
     line-wordmark-dash-offset 2.5s linear var(--line-delay) both;
 }
 
 .line-wordmark[data-animation='loop'] .line-wordmark__dash {
-  stroke-dasharray: 0 1 359 0;
-  stroke-dashoffset: 365;
   animation:
     line-wordmark-dash-array 1.85s ease-in-out var(--line-delay) infinite,
     line-wordmark-dash-offset 1.85s linear var(--line-delay) infinite;

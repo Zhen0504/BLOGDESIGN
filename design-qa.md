@@ -73,6 +73,13 @@
 
 final result: passed
 
+## ZHEN first-frame regression — passed
+
+- Captured the page approximately 120 ms after navigation began in a fresh tab.
+- The visible frame contained only partially drawn glyph segments; the completed ZHEN wordmark did not flash before animation.
+- After the intro completed, a same-tab reload produced no intro status overlay, preserving the session-only behavior.
+- Browser console: 0 errors and 0 warnings.
+
 ---
 
 # Design QA — Session intro and genuine loading state
