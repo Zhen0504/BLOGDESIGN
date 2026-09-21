@@ -1,7 +1,7 @@
 let pendingReturnCategory = null
 
 export function setPendingCrystalReturn(category) {
-  pendingReturnCategory = category === 'development' || category === 'research'
+  pendingReturnCategory = ['about', 'development', 'research'].includes(category)
     ? category
     : null
 }

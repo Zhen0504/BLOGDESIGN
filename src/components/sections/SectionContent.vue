@@ -111,6 +111,9 @@ function openArticle(article) {
           {{ portfolio.profile.summary }}
         </p>
         <p v-else class="content-pending">个人资料待确认</p>
+        <div class="about-more writing-preview__header">
+          <button type="button" @click="emit('open-writing', { category: 'about', path: '/about/profile' })">VIEW MORE ↗</button>
+        </div>
         <ul v-if="portfolio.profile.keywords.length" class="keyword-list">
           <li v-for="keyword in portfolio.profile.keywords.slice(0, 3)" :key="keyword">
             {{ keyword }}
@@ -437,6 +440,15 @@ function openArticle(article) {
 .writing-preview__header button:hover,
 .writing-preview__header button:focus-visible {
   color: #d2c8ff;
+}
+
+.about-more {
+  justify-content: flex-start;
+  margin-top: 18px;
+}
+
+.about-more button {
+  padding-left: 0;
 }
 
 .writing-preview__list {

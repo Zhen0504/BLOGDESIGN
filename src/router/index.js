@@ -6,6 +6,11 @@ import PortfolioView from '../views/PortfolioView.vue'
 
 const routes = [
   {
+    path: '/about/profile',
+    name: 'about-profile',
+    component: () => import('../views/AboutProfileView.vue'),
+  },
+  {
     path: '/__crystal-lab',
     name: 'crystal-lab',
     component: () => import('../experiments/crystal-lab/CrystalLabView.vue'),
@@ -43,6 +48,11 @@ const router = createRouter({
 })
 
 router.afterEach((to) => {
+  if (to.name === 'about-profile') {
+    document.title = 'ABOUT ME — ZHEN'
+    return
+  }
+
   if (to.name === 'crystal-lab') {
     document.title = 'Crystal Lab — Orbit Archive'
     return
