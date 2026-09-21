@@ -13,17 +13,25 @@ const requiredFiles = [
   'src/App.vue',
   'src/router/index.js',
   'src/data/portfolio.js',
+  'src/data/articles.js',
+  'src/data/articleParser.js',
   'src/views/PortfolioView.vue',
+  'src/views/ArticleArchiveView.vue',
+  'src/views/ArticleDetailView.vue',
   'src/components/layout/PortfolioHeader.vue',
   'src/components/layout/SectionIndicator.vue',
   'src/components/sections/SectionContent.vue',
   'src/components/projects/CompactProjectLink.vue',
+  'src/components/articles/LatestArticleLink.vue',
+  'src/components/articles/ArticlePageShell.vue',
+  'src/components/articles/ArticleMarkdown.vue',
   'src/components/effects/ParticleText.vue',
   'src/components/intro/LineWordmark.vue',
   'src/components/intro/LoadingOverlay.vue',
   'src/components/intro/ZhenIntro.vue',
   'src/components/intro/sessionIntro.js',
   'src/components/crystal-scene/CrystalScene.vue',
+  'src/components/crystal-scene/portalTransitionState.js',
   'src/components/crystal-scene/createWelcomeCrystalScene.js',
   'src/components/crystal-scene/createCrystalMotionController.js',
   'src/components/crystal-scene/createSectionTransitionController.js',
@@ -37,6 +45,8 @@ const requiredFiles = [
   'src/styles/reset.css',
   'src/styles/variables.css',
   'src/styles/global.css',
+  'content/development/.gitkeep',
+  'content/research/.gitkeep',
 ]
 
 for (const file of requiredFiles) {
@@ -59,6 +69,9 @@ assert.equal(packageJson.scripts.dev, 'vite')
 assert.equal(packageJson.scripts.build, 'vite build')
 assert.equal(packageJson.dependencies.vue, '^3.5.0')
 assert.equal(packageJson.dependencies['vue-router'], '^4.5.0')
+assert.ok(packageJson.dependencies.marked)
+assert.ok(packageJson.dependencies.yaml)
+assert.ok(packageJson.dependencies.dompurify)
 assert.equal(packageJson.dependencies.ogl, '^1.0.11')
 assert.equal(packageJson.dependencies.three, '0.185.1')
 assert.equal(packageJson.dependencies.postprocessing, '6.39.4')
@@ -73,6 +86,9 @@ assert.match(router, /createWebHashHistory/)
 assert.doesNotMatch(router, /createWebHistory/)
 assert.match(router, /PortfolioView/)
 assert.match(router, /about\|development\|research\|contact/)
+assert.match(router, /development\|research\)\/articles/)
+assert.match(router, /name:\s*['"]article-archive['"]/)
+assert.match(router, /name:\s*['"]article-detail['"]/)
 
 const indexHtml = readFileSync(resolve(root, 'index.html'), 'utf8')
 assert.match(indexHtml, /Orbit Archive/)
@@ -154,6 +170,10 @@ assert.match(sectionContent, /aria-label="ABOUT ME"/)
 assert.match(sectionContent, /aria-label="DEVELOPMENT"/)
 assert.match(sectionContent, /aria-label="RESEARCH"/)
 assert.match(sectionContent, /aria-label="CONTACT"/)
+assert.match(sectionContent, /LATEST WRITINGS/)
+assert.match(sectionContent, /VIEW ALL/)
+assert.match(sectionContent, /latestDevelopmentArticles/)
+assert.match(sectionContent, /latestResearchArticles/)
 
 const overviewTemplate = sectionContent.match(
   /<template v-if="section\.id === '00'">([\s\S]*?)<\/template>/,
@@ -177,9 +197,12 @@ assert.match(portfolioView, /<ZhenIntro/)
 assert.match(portfolioView, /<LoadingOverlay/)
 assert.match(portfolioView, /@scene-ready="onSceneReady"/)
 assert.match(portfolioView, /@scene-fallback="onSceneFallback"/)
-assert.match(portfolioView, /returningSession && !sceneSettled\.value/)
+assert.match(portfolioView, /returningSession && !returningFromArticles && !sceneSettled\.value/)
 assert.match(portfolioView, /showSessionIntro && !introComplete/)
 assert.match(portfolioView, /markSessionIntroSeen\(\)/)
+assert.match(portfolioView, /@open-writing="openWriting"/)
+assert.match(portfolioView, /enterPortal\(activeSection\.value\.id\)/)
+assert.match(portfolioView, /exitPortal\(activeSection\.value\.id\)/)
 assert.match(portfolioView, /addEventListener\('wheel'/)
 assert.match(portfolioView, /transitionLocked/)
 
@@ -190,6 +213,8 @@ const welcomeScene = readFileSync(
 assert.match(welcomeScene, /__WELCOME_CRYSTAL_SCENE__/)
 assert.match(welcomeScene, /visibilitychange/)
 assert.match(welcomeScene, /forceContextLoss/)
+assert.match(welcomeScene, /enterPortal/)
+assert.match(welcomeScene, /exitPortal/)
 
 const zhenIntro = readFileSync(
   resolve(root, 'src/components/intro/ZhenIntro.vue'),

@@ -4,6 +4,7 @@ import { setMaterialOpacity } from './createCrystalMaterials'
 import { FOCUS_POSITIONS, SECTION_FOCUS, WELCOME_ANCHORS } from './crystalManifest'
 
 const TRANSITION_DURATION = 1.35
+const PORTAL_DURATION = 1.58
 
 function easeInOutCubic(value) {
   return value < 0.5
@@ -56,6 +57,44 @@ function makeState(sectionId, models) {
   }
 }
 
+function makePortalState(sectionId, models) {
+  const focusKey = SECTION_FOCUS[sectionId]
+  if (!focusKey) return null
+  const modelStates = {}
+
+  Object.keys(models).forEach((key) => {
+    const anchor = WELCOME_ANCHORS[key]
+    if (key === focusKey) {
+      modelStates[key] = {
+        position: [0, 0, 1.22],
+        rotation: [0, 0, 0],
+        scale: 4.9,
+        opacity: 1,
+      }
+      return
+    }
+
+    modelStates[key] = {
+      position: [anchor.position[0], anchor.position[1], -2.4],
+      rotation: anchor.rotation,
+      scale: 0.48,
+      opacity: 0.04,
+    }
+  })
+
+  return {
+    sectionId,
+    focusKey,
+    overview: false,
+    camera: [0, 0, 4.26],
+    lookAt: [0, 0, 1.18],
+    focusPosition: [0, 0, 1.22],
+    bokeh: 4.8,
+    focusRange: 0.22,
+    modelStates,
+  }
+}
+
 function snapshot(camera, lookAt, focusTarget, models, depthOfField) {
   const modelStates = {}
   Object.entries(models).forEach(([key, model]) => {
@@ -87,6 +126,7 @@ export function createSectionTransitionController({
   quality,
   onStart,
   onComplete,
+  onProgress,
 }) {
   const lookAt = new Vector3(1.83, 0, 0)
   const focusTarget = new Vector3(1.92, 0, 0)
@@ -95,6 +135,8 @@ export function createSectionTransitionController({
   let toState = null
   let elapsed = 0
   let transitioning = false
+  let transitionDuration = TRANSITION_DURATION
+  let transitionKind = 'section'
 
   depthOfField.target = focusTarget
 
@@ -152,26 +194,59 @@ export function createSectionTransitionController({
       toState = targetState
       applyState(targetState, 1)
       transitioning = false
-      onComplete?.(sectionId)
+      transitionKind = 'section'
+      onComplete?.(sectionId, transitionKind)
       return
     }
     fromState = snapshot(camera, lookAt, focusTarget, models, depthOfField)
     toState = targetState
     elapsed = 0
+    transitionDuration = TRANSITION_DURATION
+    transitionKind = 'section'
     transitioning = true
-    onStart?.(sectionId)
+    onStart?.(sectionId, transitionKind)
+  }
+
+  function enterPortal(sectionId) {
+    const targetState = makePortalState(sectionId, models)
+    if (!targetState || !models[targetState.focusKey] || quality.reducedMotion || quality.compact || !quality.webgl2) return false
+    activeSection = sectionId
+    fromState = snapshot(camera, lookAt, focusTarget, models, depthOfField)
+    toState = targetState
+    elapsed = 0
+    transitionDuration = PORTAL_DURATION
+    transitionKind = 'portal-enter'
+    transitioning = true
+    onStart?.(sectionId, transitionKind)
+    return true
+  }
+
+  function exitPortal(sectionId) {
+    const portalState = makePortalState(sectionId, models)
+    if (!portalState || !models[portalState.focusKey] || quality.reducedMotion || quality.compact || !quality.webgl2) return false
+    activeSection = sectionId
+    fromState = portalState
+    toState = makeState(sectionId, models)
+    applyState(portalState, 1)
+    elapsed = 0
+    transitionDuration = PORTAL_DURATION
+    transitionKind = 'portal-exit'
+    transitioning = true
+    onStart?.(sectionId, transitionKind)
+    return true
   }
 
   function update(delta) {
     if (!transitioning || !toState) return
     elapsed += delta
-    const rawProgress = Math.min(1, elapsed / TRANSITION_DURATION)
+    const rawProgress = Math.min(1, elapsed / transitionDuration)
     const progress = quality.reducedMotion ? rawProgress : easeInOutCubic(rawProgress)
     applyState(toState, progress)
+    onProgress?.(activeSection, transitionKind, rawProgress)
     if (rawProgress >= 1) {
       transitioning = false
       fromState = toState
-      onComplete?.(activeSection)
+      onComplete?.(activeSection, transitionKind)
     }
   }
 
@@ -183,6 +258,8 @@ export function createSectionTransitionController({
       return activeSection
     },
     setSection,
+    enterPortal,
+    exitPortal,
     update,
   }
 }

@@ -66,10 +66,14 @@ function addLighting(scene) {
 
 export async function createWelcomeCrystalScene({
   canvas,
+  signal,
   initialSection,
   onStatus,
   onTransitionStart,
   onTransitionComplete,
+  onPortalStart,
+  onPortalComplete,
+  onPortalProgress,
 }) {
   const renderer = new WebGLRenderer({
     canvas,
@@ -172,6 +176,22 @@ export async function createWelcomeCrystalScene({
     galaxy.setSection(sectionId, immediate)
   }
 
+  function enterPortal(sectionId) {
+    if (window.innerWidth <= 760
+      || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+      || (averageFps > 0 && averageFps < 28)) return false
+    galaxy.setSection(sectionId, false)
+    return transition?.enterPortal(sectionId) ?? false
+  }
+
+  function exitPortal(sectionId) {
+    if (window.innerWidth <= 760
+      || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+      || (averageFps > 0 && averageFps < 28)) return false
+    galaxy.setSection(sectionId, true)
+    return transition?.exitPortal(sectionId) ?? false
+  }
+
   function dispose() {
     if (disposed) return
     disposed = true
@@ -214,27 +234,44 @@ export async function createWelcomeCrystalScene({
     },
     get pointerInfluences() { return motion?.influences ?? {} },
     setSection,
+    enterPortal,
+    exitPortal,
     setPointer(x, y) { motion?.setPointer(x, y) },
     pause: stop,
     resume: start,
     dispose,
   }
 
+  if (signal) listen(signal, 'abort', dispose, { once: true })
+
   try {
+    if (signal?.aborted) throw new Error('Crystal scene initialization cancelled.')
     onStatus?.('loading', 'Loading crystal system 0 / 5')
     const { system, models, failures } = await loadCrystalSystem((loaded, total) => {
-      onStatus?.('loading', `Loading crystal system ${loaded} / ${total}`)
+      if (!disposed) onStatus?.('loading', `Loading crystal system ${loaded} / ${total}`)
     })
+    if (disposed || signal?.aborted) {
+      disposeSceneGraph(system)
+      throw new Error('Crystal scene initialization cancelled.')
+    }
     crystalModels = models
     scene.add(system)
+    if (!models.about || !models.center) throw new Error('Required crystal assets could not be loaded.')
     post = createScenePostProcessing({ renderer, scene, camera, quality })
     transition = createSectionTransitionController({
       camera,
       models,
       depthOfField: post.depthOfField,
       quality,
-      onStart: onTransitionStart,
-      onComplete: onTransitionComplete,
+      onProgress: onPortalProgress,
+      onStart(sectionId, kind) {
+        if (kind === 'section') onTransitionStart?.(sectionId)
+        else onPortalStart?.(sectionId, kind)
+      },
+      onComplete(sectionId, kind) {
+        if (kind === 'section') onTransitionComplete?.(sectionId)
+        else onPortalComplete?.(sectionId, kind)
+      },
     })
     transition.setSection(initialSection, true)
     galaxy.setSection(initialSection, true)
@@ -258,5 +295,5 @@ export async function createWelcomeCrystalScene({
     throw error
   }
 
-  return { setSection, dispose, renderer, scene, camera }
+  return { setSection, enterPortal, exitPortal, dispose, renderer, scene, camera }
 }

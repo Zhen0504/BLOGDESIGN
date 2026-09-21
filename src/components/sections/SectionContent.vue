@@ -1,7 +1,9 @@
 <script setup>
 import { computed } from 'vue'
 
+import { getLatestArticles } from '../../data/articles'
 import { getLatestProjects, portfolio } from '../../data/portfolio'
+import LatestArticleLink from '../articles/LatestArticleLink.vue'
 import ParticleText from '../effects/ParticleText.vue'
 import CompactProjectLink from '../projects/CompactProjectLink.vue'
 
@@ -12,6 +14,8 @@ defineProps({
   },
 })
 
+const emit = defineEmits(['open-writing'])
+
 const latestDevelopmentProjects = computed(() => (
   getLatestProjects(portfolio.developmentProjects)
 ))
@@ -19,6 +23,23 @@ const latestDevelopmentProjects = computed(() => (
 const latestResearchProjects = computed(() => (
   getLatestProjects(portfolio.researchProjects)
 ))
+
+const latestDevelopmentArticles = getLatestArticles('development')
+const latestResearchArticles = getLatestArticles('research')
+
+function openArchive(category) {
+  emit('open-writing', {
+    category,
+    path: `/${category}/articles`,
+  })
+}
+
+function openArticle(article) {
+  emit('open-writing', {
+    category: article.category,
+    path: article.href,
+  })
+}
 </script>
 
 <template>
@@ -127,6 +148,20 @@ const latestResearchProjects = computed(() => (
           />
         </div>
         <p v-else class="content-pending">开发项目资料待确认</p>
+        <div class="writing-preview">
+          <div class="writing-preview__header">
+            <span>LATEST WRITINGS</span>
+            <button type="button" @click="openArchive('development')">VIEW ALL ↗</button>
+          </div>
+          <div v-if="latestDevelopmentArticles.length" class="writing-preview__list">
+            <LatestArticleLink
+              v-for="article in latestDevelopmentArticles"
+              :key="article.slug"
+              :article="article"
+              @open="openArticle"
+            />
+          </div>
+        </div>
       </template>
 
       <template v-else-if="section.id === '03'">
@@ -159,6 +194,20 @@ const latestResearchProjects = computed(() => (
           />
         </div>
         <p v-else class="content-pending">科研项目资料待确认</p>
+        <div class="writing-preview">
+          <div class="writing-preview__header">
+            <span>LATEST WRITINGS</span>
+            <button type="button" @click="openArchive('research')">VIEW ALL ↗</button>
+          </div>
+          <div v-if="latestResearchArticles.length" class="writing-preview__list">
+            <LatestArticleLink
+              v-for="article in latestResearchArticles"
+              :key="article.slug"
+              :article="article"
+              @open="openArticle"
+            />
+          </div>
+        </div>
       </template>
 
       <template v-else>
@@ -355,6 +404,45 @@ const latestResearchProjects = computed(() => (
   display: grid;
   gap: 14px;
   margin-top: 32px;
+}
+
+.writing-preview {
+  width: min(420px, 100%);
+  margin-top: 26px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(224, 227, 238, 0.11);
+}
+
+.writing-preview__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: rgba(200, 200, 219, 0.52);
+  font-family: var(--font-ui);
+  font-size: 8px;
+  letter-spacing: 0.2em;
+}
+
+.writing-preview__header button {
+  border: 0;
+  padding: 7px 0 7px 12px;
+  background: none;
+  color: #a58fff;
+  font: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+  transition: color 180ms ease;
+}
+
+.writing-preview__header button:hover,
+.writing-preview__header button:focus-visible {
+  color: #d2c8ff;
+}
+
+.writing-preview__list {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
 }
 
 .contact-links {

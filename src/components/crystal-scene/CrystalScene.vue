@@ -10,16 +10,33 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['scene-ready', 'scene-fallback', 'transition-start', 'transition-complete'])
+const emit = defineEmits([
+  'scene-ready',
+  'scene-fallback',
+  'transition-start',
+  'transition-complete',
+  'portal-start',
+  'portal-complete',
+  'portal-progress',
+])
 const canvas = ref(null)
 const status = ref('loading')
 const statusMessage = ref('Loading crystal system 0 / 5')
 let sceneApi = null
+let unmounted = false
+let loadTimer = 0
+const abortController = new AbortController()
 
 onMounted(async () => {
+  loadTimer = window.setTimeout(() => {
+    abortController.abort()
+    status.value = 'fallback'
+    emit('scene-fallback')
+  }, 15000)
   try {
     sceneApi = await createWelcomeCrystalScene({
       canvas: canvas.value,
+      signal: abortController.signal,
       initialSection: props.sectionId,
       onStatus(nextStatus, message) {
         status.value = nextStatus
@@ -31,12 +48,43 @@ onMounted(async () => {
       onTransitionComplete(sectionId) {
         emit('transition-complete', sectionId)
       },
+      onPortalProgress(sectionId, kind, progress) {
+        emit('portal-progress', sectionId, kind, progress)
+      },
+      onPortalStart(sectionId, kind) {
+        emit('portal-start', sectionId, kind)
+      },
+      onPortalComplete(sectionId, kind) {
+        emit('portal-complete', sectionId, kind)
+      },
     })
+    window.clearTimeout(loadTimer)
+    if (unmounted || abortController.signal.aborted) {
+      sceneApi.dispose()
+      sceneApi = null
+      return
+    }
+    sceneApi.setSection(props.sectionId, true)
     emit('scene-ready')
   } catch (error) {
+    window.clearTimeout(loadTimer)
+    if (unmounted) return
+    status.value = 'fallback'
     console.error('Welcome crystal scene failed to initialize.', error)
     emit('scene-fallback')
   }
+})
+
+defineExpose({
+  resetSection(sectionId) {
+    sceneApi?.setSection(sectionId, true)
+  },
+  enterPortal(sectionId) {
+    return sceneApi?.enterPortal(sectionId) ?? false
+  },
+  exitPortal(sectionId) {
+    return sceneApi?.exitPortal(sectionId) ?? false
+  },
 })
 
 watch(() => props.sectionId, (sectionId) => {
@@ -44,6 +92,9 @@ watch(() => props.sectionId, (sectionId) => {
 })
 
 onBeforeUnmount(() => {
+  window.clearTimeout(loadTimer)
+  unmounted = true
+  abortController.abort()
   sceneApi?.dispose()
   sceneApi = null
 })

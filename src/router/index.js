@@ -1,6 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 
 import { getSectionBySlug } from '../data/portfolio'
+import { getArticle, getCategoryLabel } from '../data/articles'
 import PortfolioView from '../views/PortfolioView.vue'
 
 const routes = [
@@ -8,6 +9,18 @@ const routes = [
     path: '/__crystal-lab',
     name: 'crystal-lab',
     component: () => import('../experiments/crystal-lab/CrystalLabView.vue'),
+  },
+  {
+    path: '/:category(development|research)/articles',
+    name: 'article-archive',
+    component: () => import('../views/ArticleArchiveView.vue'),
+    props: true,
+  },
+  {
+    path: '/:category(development|research)/articles/:slug',
+    name: 'article-detail',
+    component: () => import('../views/ArticleDetailView.vue'),
+    props: true,
   },
   {
     path: '/:section(about|development|research|contact)?',
@@ -32,6 +45,19 @@ const router = createRouter({
 router.afterEach((to) => {
   if (to.name === 'crystal-lab') {
     document.title = 'Crystal Lab — Orbit Archive'
+    return
+  }
+
+  if (to.name === 'article-archive') {
+    document.title = `${getCategoryLabel(to.params.category)} WRITINGS — ZHEN`
+    return
+  }
+
+  if (to.name === 'article-detail') {
+    const article = getArticle(to.params.category, to.params.slug)
+    document.title = article
+      ? `${article.title} — ZHEN`
+      : 'ARTICLE NOT FOUND — ZHEN'
     return
   }
 

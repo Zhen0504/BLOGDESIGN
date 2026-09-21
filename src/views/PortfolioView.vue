@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import CrystalScene from '../components/crystal-scene/CrystalScene.vue'
+import { consumePendingCrystalReturn } from '../components/crystal-scene/portalTransitionState'
 import LoadingOverlay from '../components/intro/LoadingOverlay.vue'
 import ZhenIntro from '../components/intro/ZhenIntro.vue'
 import {
@@ -27,36 +28,50 @@ const props = defineProps({
 
 const router = useRouter()
 const activeSection = computed(() => getSectionBySlug(props.section))
+const returningFromArticles = consumePendingCrystalReturn(activeSection.value.slug)
 const displayedSection = ref(activeSection.value)
-const transitionLocked = ref(false)
-const contentHidden = ref(false)
+const transitionLocked = ref(returningFromArticles)
+const contentHidden = ref(returningFromArticles)
 const sceneReady = ref(false)
 const sceneSettled = ref(false)
 const returningSession = hasSeenSessionIntro()
-const showSessionIntro = !returningSession
-const introComplete = ref(returningSession)
+const showSessionIntro = !returningSession && !returningFromArticles
+const introComplete = ref(returningSession || returningFromArticles)
 const introRevealing = ref(false)
 const loadingOverlayActive = ref(false)
-const returningLoadPending = computed(() => returningSession && !sceneSettled.value)
+const crystalScene = ref(null)
+const portalMode = ref(returningFromArticles ? 'return-waiting' : null)
+const portalVeilVisible = ref(returningFromArticles)
+const portalTargetPath = ref('')
+const returningLoadPending = computed(() => (
+  returningSession && !returningFromArticles && !sceneSettled.value
+))
 const interactionLocked = computed(() => (
   transitionLocked.value
   || !introComplete.value
   || loadingOverlayActive.value
+  || Boolean(portalMode.value)
 ))
 let wheelDelta = 0
 let wheelResetTimer = 0
 let contentSwapTimer = 0
 let contentRevealTimer = 0
+let portalNavigationTimer = 0
+let portalFallbackTimer = 0
+let portalWatchdog = 0
+let unmounted = false
+let portalRevealFrame = 0
 
 async function navigateTo(section) {
   if (!section || interactionLocked.value || section.id === activeSection.value.id) return
   transitionLocked.value = true
   wheelDelta = 0
   try {
-    await router.push(getSectionPath(section))
+    const failure = await router.push(getSectionPath(section))
+    if (failure || !sceneReady.value) transitionLocked.value = false
   } catch (error) {
     transitionLocked.value = false
-    throw error
+    console.error('Section navigation failed.', error)
   }
 }
 
@@ -68,6 +83,10 @@ function moveByOffset(offset) {
 }
 
 function onWheel(event) {
+  const scrollArea = event.target.closest?.('.writing-scroll')
+  if (scrollArea && scrollArea.scrollHeight > scrollArea.clientHeight
+    && ((event.deltaY > 0 && scrollArea.scrollTop + scrollArea.clientHeight < scrollArea.scrollHeight - 1)
+      || (event.deltaY < 0 && scrollArea.scrollTop > 0))) return
   if (Math.abs(event.deltaY) < Math.abs(event.deltaX)) return
   event.preventDefault()
   if (interactionLocked.value) return
@@ -100,11 +119,95 @@ function onTransitionComplete() {
 function onSceneReady() {
   sceneReady.value = true
   sceneSettled.value = true
+  if (!returningFromArticles || !portalMode.value?.startsWith('return')) return
+
+  portalMode.value = 'returning'
+  const started = crystalScene.value?.exitPortal(activeSection.value.id)
+  portalRevealFrame = window.requestAnimationFrame(() => {
+    portalVeilVisible.value = false
+  })
+  if (!started) {
+    portalFallbackTimer = window.setTimeout(finishPortalReturn, 420)
+  }
 }
 
 function onSceneFallback() {
   sceneReady.value = false
   sceneSettled.value = true
+  transitionLocked.value = false
+  if (portalMode.value?.startsWith('return')) {
+    portalMode.value = 'returning'
+    portalRevealFrame = window.requestAnimationFrame(() => {
+      portalVeilVisible.value = false
+    })
+    portalFallbackTimer = window.setTimeout(finishPortalReturn, 420)
+  }
+}
+
+function finishPortalReturn() {
+  window.clearTimeout(portalNavigationTimer)
+  window.clearTimeout(portalWatchdog)
+  window.clearTimeout(portalFallbackTimer)
+  portalMode.value = null
+  portalVeilVisible.value = false
+  contentHidden.value = false
+  transitionLocked.value = false
+}
+
+async function finishPortalNavigation() {
+  if (unmounted || portalMode.value !== 'entering' || !portalTargetPath.value) return
+  portalMode.value = 'navigating'
+  window.clearTimeout(portalWatchdog)
+  try {
+    const failure = await router.push(portalTargetPath.value)
+    if (failure && !unmounted) recoverPortal()
+  } catch {
+    if (!unmounted) recoverPortal()
+  }
+}
+
+function recoverPortal() {
+  crystalScene.value?.resetSection(activeSection.value.id)
+  finishPortalReturn()
+  portalTargetPath.value = ''
+}
+
+function onPortalProgress(_sectionId, kind, progress) {
+  if (kind === 'portal-enter' && portalMode.value === 'entering' && progress >= 0.72) {
+    portalVeilVisible.value = true
+  }
+}
+
+function onPortalComplete(_sectionId, kind) {
+  if (kind === 'portal-exit') {
+    finishPortalReturn()
+    return
+  }
+  if (kind !== 'portal-enter' || portalMode.value !== 'entering') return
+  portalVeilVisible.value = true
+  portalNavigationTimer = window.setTimeout(finishPortalNavigation, 120)
+}
+
+function openWriting({ category, path }) {
+  if (interactionLocked.value || category !== activeSection.value.slug || !path) return
+  transitionLocked.value = true
+  contentHidden.value = true
+  portalMode.value = 'entering'
+  portalTargetPath.value = path
+  wheelDelta = 0
+
+  const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
+  const started = crystalScene.value?.enterPortal(activeSection.value.id)
+  portalWatchdog = window.setTimeout(() => {
+    if (portalMode.value !== 'entering') return
+    portalVeilVisible.value = true
+    portalFallbackTimer = window.setTimeout(finishPortalNavigation, 400)
+  }, 8000)
+
+  if (!started) {
+    portalVeilVisible.value = true
+    portalFallbackTimer = window.setTimeout(finishPortalNavigation, reducedMotion ? 420 : 460)
+  }
 }
 
 function onIntroRevealStart() {
@@ -118,6 +221,7 @@ function onIntroComplete() {
 }
 
 watch(() => activeSection.value.id, () => {
+  if (portalMode.value) recoverPortal()
   const nextSection = activeSection.value
   window.clearTimeout(contentSwapTimer)
   window.clearTimeout(contentRevealTimer)
@@ -131,16 +235,23 @@ watch(() => activeSection.value.id, () => {
 })
 
 onMounted(() => {
+  if (returningFromArticles) portalWatchdog = window.setTimeout(recoverPortal, 12000)
+  if (returningFromArticles) markSessionIntroSeen()
   window.addEventListener('wheel', onWheel, { passive: false })
   window.addEventListener('keydown', onKeydown)
 })
 
 onBeforeUnmount(() => {
+  unmounted = true
+  window.cancelAnimationFrame(portalRevealFrame)
+  window.clearTimeout(portalWatchdog)
   window.removeEventListener('wheel', onWheel)
   window.removeEventListener('keydown', onKeydown)
   window.clearTimeout(wheelResetTimer)
   window.clearTimeout(contentSwapTimer)
   window.clearTimeout(contentRevealTimer)
+  window.clearTimeout(portalNavigationTimer)
+  window.clearTimeout(portalFallbackTimer)
 })
 </script>
 
@@ -155,11 +266,14 @@ onBeforeUnmount(() => {
   >
     <div class="portfolio-stage">
       <CrystalScene
+        ref="crystalScene"
         :section-id="activeSection.id"
         @scene-ready="onSceneReady"
         @scene-fallback="onSceneFallback"
         @transition-start="onTransitionStart"
         @transition-complete="onTransitionComplete"
+        @portal-complete="onPortalComplete"
+        @portal-progress="onPortalProgress"
       />
       <div class="ambient-background" aria-hidden="true"></div>
 
@@ -171,10 +285,10 @@ onBeforeUnmount(() => {
 
       <main
         class="portfolio-main"
-        :class="[`content-${displayedSection.contentSide}`, { 'content-hidden': contentHidden }]"
+        :class="[`content-${displayedSection.contentSide}`, { 'content-hidden': contentHidden, 'writing-scroll': ['02', '03'].includes(displayedSection.id) }]"
         :aria-label="displayedSection.navLabel"
       >
-        <SectionContent :section="displayedSection" />
+        <SectionContent :section="displayedSection" @open-writing="openWriting" />
       </main>
 
       <SectionIndicator
@@ -195,6 +309,12 @@ onBeforeUnmount(() => {
       :pending="returningLoadPending"
       @active-change="loadingOverlayActive = $event"
     />
+
+    <div
+      class="crystal-portal-veil"
+      :class="{ 'is-visible': portalVeilVisible }"
+      aria-hidden="true"
+    ></div>
   </div>
 </template>
 
@@ -207,6 +327,48 @@ onBeforeUnmount(() => {
   background:
     radial-gradient(circle at 70% 46%, rgba(55, 50, 137, 0.08), transparent 38%),
     var(--color-page);
+}
+
+.crystal-portal-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 92;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    radial-gradient(circle at 50% 48%, rgba(232, 227, 255, 0.95) 0 4%, rgba(159, 133, 255, 0.8) 18%, rgba(75, 52, 166, 0.68) 42%, rgba(5, 5, 20, 0.98) 82%),
+    #080718;
+  filter: saturate(1.1);
+  transition: opacity 360ms cubic-bezier(0.4, 0, 1, 1);
+}
+
+.crystal-portal-veil::before,
+.crystal-portal-veil::after {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 42vmax;
+  height: 42vmax;
+  border: 1px solid rgba(224, 217, 255, 0.22);
+  border-radius: 46% 54% 61% 39%;
+  content: '';
+  transform: translate(-50%, -50%) rotate(18deg);
+}
+
+.crystal-portal-veil::after {
+  width: 66vmax;
+  height: 66vmax;
+  border-color: rgba(151, 128, 255, 0.16);
+  transform: translate(-50%, -50%) rotate(-28deg);
+}
+
+.crystal-portal-veil.is-visible {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .crystal-portal-veil {
+    transition-duration: 120ms;
+  }
 }
 
 .portfolio-stage {
@@ -264,6 +426,26 @@ onBeforeUnmount(() => {
   min-height: 100svh;
   padding: calc(var(--header-height) + 34px) clamp(68px, 5.4vw, 104px) 64px;
   pointer-events: none;
+}
+
+.portfolio-main.writing-scroll {
+  height: 100svh;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  pointer-events: auto;
+}
+
+.portfolio-main.writing-scroll :deep(.section-content) {
+  align-self: safe center;
+}
+
+@media (max-height: 800px) {
+  .portfolio-main.writing-scroll { padding-top: calc(var(--header-height) + 18px); }
+  .writing-scroll :deep(.section-particle-title) { margin-top: 12px; height: 74px; }
+  .writing-scroll :deep(.section-kicker),
+  .writing-scroll :deep(.content-pending) { margin-top: 16px; }
+  .writing-scroll :deep(.writing-preview) { margin-top: 18px; }
 }
 
 .portfolio-main :deep(a),

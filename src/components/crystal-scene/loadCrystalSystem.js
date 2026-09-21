@@ -110,9 +110,5 @@ export async function loadCrystalSystem(onProgress) {
     }
   })
 
-  if (!models.about || !models.center) {
-    throw new Error('Required ABOUT crystal assets could not be loaded.')
-  }
-
   return { system, models, failures }
 }
