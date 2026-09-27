@@ -1,6 +1,8 @@
 <script setup>
 import DOMPurify from 'dompurify'
-import { marked } from 'marked'
+import { Marked } from 'marked'
+import markedKatex from 'marked-katex-extension'
+import 'katex/dist/katex.min.css'
 import { computed } from 'vue'
 
 const props = defineProps({
@@ -10,7 +12,8 @@ const props = defineProps({
   },
 })
 
-const html = computed(() => DOMPurify.sanitize(marked.parse(props.source, {
+const markdown = new Marked(markedKatex({ throwOnError: false, trust: false, output: 'html' }))
+const html = computed(() => DOMPurify.sanitize(markdown.parse(props.source, {
   gfm: true,
   breaks: false,
 })))
@@ -40,6 +43,7 @@ const html = computed(() => DOMPurify.sanitize(marked.parse(props.source, {
 }
 
 .article-markdown :deep(h2) { font-size: 28px; }
+.article-markdown :deep(.katex-display) { overflow-x: auto; overflow-y: hidden; padding: 8px 0; }
 .article-markdown :deep(h3) { font-size: 22px; }
 .article-markdown :deep(p) { margin: 1.2em 0; }
 .article-markdown :deep(a) { color: #a794ff; text-decoration-color: rgba(167, 148, 255, 0.42); }

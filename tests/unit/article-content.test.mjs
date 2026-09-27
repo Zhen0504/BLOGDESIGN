@@ -89,7 +89,7 @@ console.log('Strict metadata checks passed.')
 
 const { createServer } = await import('vite')
 const { PerspectiveCamera, Object3D } = await import('three')
-const server = await createServer({ server: { middlewareMode: true }, appType: 'custom' })
+const server = await createServer({ server: { middlewareMode: true }, appType: 'custom', optimizeDeps: { noDiscovery: true, include: [] } })
 try {
   const { createSectionTransitionController } = await server.ssrLoadModule('/src/components/crystal-scene/createSectionTransitionController.js')
   function controller(quality = {}) {

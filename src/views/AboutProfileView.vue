@@ -1,22 +1,16 @@
 <script setup>
 import ArticleMarkdown from '../components/articles/ArticleMarkdown.vue'
 import ArticlePageShell from '../components/articles/ArticlePageShell.vue'
+import DalianMapCard from '../components/about/DalianMapCard.vue'
+import SuggestionCard from '../components/about/SuggestionCard.vue'
 
 const introduction = `## 你好，欢迎来到我的小小轨道
 
-这里是 ZHEN 的个人空间。我希望把开发中的尝试、研究时的思考，以及偶尔闪过的灵感，慢慢整理在这里。
+这里是 ZHEN 的个人博客，用来记录学习过程、开发尝试，以及偶尔闪过的灵感。
 
-## 我在关注什么
+建立这个博客，最初只是想把学过的东西和做过的尝试记下来，也受到了一些 UP 主分享的启发。希望在整理和回顾的过程中，把知识理解得更清楚。
 
-我对技术与表达之间的关系充满好奇：一个想法如何变成可以使用的作品，一段代码如何带来更自然的体验，一个问题又如何引出新的探索。
-
-这里将陆续记录一些项目实践、学习笔记和研究过程，也会保留那些还没有答案的问题。
-
-## 关于这个网站
-
-这片轨道连接着开发、研究与日常思考。希望每一次来到这里，都能遇见一点新的东西。
-
-> 以上为临时简介占位，后续会替换为正式个人介绍。
+网站还在慢慢完善，记录也会继续。
 `
 </script>
 
@@ -29,6 +23,8 @@ const introduction = `## 你好，欢迎来到我的小小轨道
         <p class="about-profile__summary">保持好奇，记录探索，让想法慢慢成为作品。</p>
       </header>
       <ArticleMarkdown :source="introduction" />
+      <DalianMapCard />
+      <SuggestionCard />
     </article>
   </ArticlePageShell>
 </template>

@@ -48,8 +48,8 @@ export const portfolio = Object.freeze({
     subtitle: 'A personal space for development, research, and ideas.',
   },
   profile: {
-    summary: '',
-    keywords: [],
+    summary: 'Lifelong Learning',
+    keywords: ['开发实践', '科研学习', '持续探索'],
   },
   developmentProjects: [],
   researchProjects: [],
@@ -58,7 +58,7 @@ export const portfolio = Object.freeze({
       label: 'github.com/Zhen0504',
       href: 'https://github.com/Zhen0504',
     },
-    email: null,
+    email: 'zhen_j06@163.com',
   },
 })
 

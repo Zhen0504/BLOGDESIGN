@@ -100,10 +100,10 @@ const archivePath = computed(() => `/${props.category}/articles`)
   margin: 22px 0 0;
   font-family: var(--font-serif-cn);
   overflow-wrap: anywhere;
-  font-size: clamp(48px, 7vw, 86px);
+  font-size: clamp(30px, 4.2vw, 52px);
   font-weight: 400;
   letter-spacing: 0.025em;
-  line-height: 0.98;
+  line-height: 1.18;
 }
 
 .article-detail__summary {

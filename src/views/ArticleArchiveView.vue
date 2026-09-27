@@ -78,7 +78,7 @@ const articles = computed(() => getArticlesByCategory(props.category))
 .article-archive h1 {
   margin: 24px 0 0;
   font-family: var(--font-display);
-  font-size: clamp(54px, 8vw, 112px);
+  font-size: clamp(40px, 6vw, 80px);
   font-weight: 400;
   letter-spacing: 0.035em;
   line-height: 0.84;
@@ -103,7 +103,7 @@ const articles = computed(() => getArticlesByCategory(props.category))
   grid-template-columns: 54px minmax(0, 1fr) 30px;
   gap: 20px;
   align-items: center;
-  padding: 28px 4px;
+  padding: 18px 4px;
   border-bottom: 1px solid rgba(222, 222, 239, 0.13);
   color: inherit;
   transition: background 220ms ease, padding 220ms ease;
@@ -125,12 +125,12 @@ const articles = computed(() => getArticlesByCategory(props.category))
 
 .article-archive__body {
   display: grid;
-  gap: 7px;
+  gap: 5px;
 }
 
 .article-archive__body strong {
   font-family: var(--font-serif-cn);
-  font-size: clamp(20px, 2.2vw, 30px);
+  font-size: clamp(18px, 1.8vw, 24px);
   font-weight: 400;
 }
 
