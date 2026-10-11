@@ -53,11 +53,8 @@ for (const file of requiredFiles) {
   assert.equal(existsSync(resolve(root, file)), true, `${file} should exist`)
 }
 
-// First-stage cleanup is intentionally deferred until the new runtime is verified.
+// Public article/project resources remain after internal document cleanup.
 for (const preservedFile of [
-  'plan.md',
-  'develop.md',
-  '设计.md',
   'public/blog/home-hero-preview.png',
   'public/images/projects/home-page.png',
 ]) {
