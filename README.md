@@ -121,5 +121,4 @@ cover: /images/articles/my-first-note/cover.jpg
 
 个人资料、项目和联系方式仍在 `src/data/portfolio.js`。00、01、04 的内容及 ZHEN 会话开场沿用现有实现。
 
-设计记录：`docs/superpowers/specs/2026-08-28-crystal-article-experience-design.md`。
-本轮验收及未覆盖项：`docs/qa/2026-09-21-crystal-articles.md`。
+公开仓库保留正式文章、源码、运行与部署说明及展示截图；内部设计、计划与验收过程记录由站长在本地保留。
