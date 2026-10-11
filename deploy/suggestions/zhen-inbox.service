@@ -1,0 +1,25 @@
+[Unit]
+Description=Zhen private suggestion inbox
+After=network.target
+
+[Service]
+Type=simple
+User=zhen-inbox
+Group=zhen-inbox
+ExecStart=/usr/bin/python3 /opt/zhen-inbox/server.py --behind-proxy
+Restart=on-failure
+RestartSec=3
+StateDirectory=zhen-inbox
+StateDirectoryMode=0700
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/zhen-inbox
+RestrictAddressFamilies=AF_INET AF_UNIX
+MemoryMax=128M
+TasksMax=32
+
+[Install]
+WantedBy=multi-user.target

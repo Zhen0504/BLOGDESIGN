@@ -5,3 +5,5 @@ npm-debug.log*
 *.local
 .playwright-cli/
 output/
+.local/
+__pycache__/

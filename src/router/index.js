@@ -49,32 +49,32 @@ const router = createRouter({
 
 router.afterEach((to) => {
   if (to.name === 'about-profile') {
-    document.title = 'ABOUT ME — ZHEN'
+    document.title = '关于我 · 圳的星河手记'
     return
   }
 
   if (to.name === 'crystal-lab') {
-    document.title = 'Crystal Lab — Orbit Archive'
+    document.title = 'Crystal Lab · 圳的星河手记'
     return
   }
 
   if (to.name === 'article-archive') {
-    document.title = `${getCategoryLabel(to.params.category)} WRITINGS — ZHEN`
+    document.title = `${getCategoryLabel(to.params.category)} · 圳的星河手记`
     return
   }
 
   if (to.name === 'article-detail') {
     const article = getArticle(to.params.category, to.params.slug)
     document.title = article
-      ? `${article.title} — ZHEN`
-      : 'ARTICLE NOT FOUND — ZHEN'
+      ? `${article.title} · 圳的星河手记`
+      : '文章未找到 · 圳的星河手记'
     return
   }
 
   const section = getSectionBySlug(to.params.section)
   document.title = section.id === '00'
-    ? 'Orbit Archive — ZHEN'
-    : `${section.navLabel} — Orbit Archive`
+    ? '圳的星河手记'
+    : `${section.navLabel} · 圳的星河手记`
 })
 
 export default router

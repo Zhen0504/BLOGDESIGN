@@ -3,6 +3,12 @@ import { computed, nextTick, onBeforeUnmount, ref } from 'vue'
 import ParticleSmile from './ParticleSmile.vue'
 
 const message = ref('')
+const website = ref('')
+const submitting = ref(false)
+const feedback = ref('')
+const succeeded = ref(false)
+let pendingSubmission = null
+let controller = null
 const focused = ref(false)
 const inboxOpen = ref(false)
 const inboxButton = ref(null)
@@ -17,8 +23,52 @@ function toggleInbox() {
 function closeOnEscape(event) {
   if (event.key === 'Escape' && inboxOpen.value) toggleInbox()
 }
+
+async function submitSuggestion() {
+  const text = message.value.trim()
+  if (submitting.value || !text) return
+  if (!pendingSubmission || pendingSubmission.message !== text) {
+    pendingSubmission = { message: text, requestId: crypto.randomUUID() }
+  }
+  submitting.value = true
+  feedback.value = ''
+  succeeded.value = false
+  controller = new AbortController()
+  const timeout = setTimeout(() => controller?.abort(), 15000)
+  try {
+    const response = await fetch('/api/suggestions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...pendingSubmission, website: website.value }),
+      signal: controller.signal,
+    })
+    const result = await response.json()
+    if (!response.ok || result.ok !== true) {
+      if (response.status === 409) pendingSubmission = null
+      throw new Error(result.error || '暂时无法提交，请稍后重试。')
+    }
+    // Do not erase a draft edited while the request was in flight.
+    if (message.value.trim() === text) message.value = ''
+    pendingSubmission = null
+    succeeded.value = true
+    feedback.value = '建议已收到，谢谢你。留言仅站长可见。'
+  } catch (error) {
+    feedback.value = error.name === 'AbortError'
+      ? '提交超时，内容已保留。请重试。'
+      : error instanceof TypeError || error instanceof SyntaxError
+        ? '暂时无法连接建议箱，内容已保留，请稍后重试。'
+        : error.message
+  } finally {
+    clearTimeout(timeout)
+    controller = null
+    submitting.value = false
+  }
+}
 document.addEventListener('keydown', closeOnEscape)
-onBeforeUnmount(() => document.removeEventListener('keydown', closeOnEscape))
+onBeforeUnmount(() => {
+  document.removeEventListener('keydown', closeOnEscape)
+  controller?.abort()
+})
 </script>
 
 <template>
@@ -27,7 +77,7 @@ onBeforeUnmount(() => document.removeEventListener('keydown', closeOnEscape))
       <div>
         <p class="suggestion__eyebrow">OPEN CHANNEL / 02</p>
         <h2 id="suggestion-title">有什么想法，想告诉我？</h2>
-        <p class="suggestion__intro">可以先把想法留在这里。建议功能开放后，我会把它们认真读完。</p>
+        <p class="suggestion__intro">把想法留在这里，我会认真读完。留言仅我可见，不会自动公开。</p>
       </div>
       <div class="suggestion__inbox-wrap">
         <button ref="inboxButton" type="button" class="suggestion__inbox-button" :aria-expanded="inboxOpen" aria-controls="public-inbox" @click="toggleInbox">
@@ -43,11 +93,13 @@ onBeforeUnmount(() => document.removeEventListener('keydown', closeOnEscape))
       </div>
     </div>
     <div class="suggestion__body">
-      <form class="suggestion__form" @submit.prevent>
+      <form class="suggestion__form" @submit.prevent="submitSuggestion">
+        <label class="suggestion__trap" aria-hidden="true">Website<input v-model="website" name="website" tabindex="-1" autocomplete="off" /></label>
         <label for="suggestion-message">你的建议</label>
         <textarea id="suggestion-message" v-model="message" maxlength="1000" placeholder="写下一个想法、问题，或对这个小站的观察……" @focus="focused = true" @blur="focused = false"></textarea>
         <div class="suggestion__meta"><span>请不要提交手机号、邮箱或其他敏感个人资料。</span><span>{{ remaining }} / 1000</span></div>
-        <button type="submit" disabled>建议功能即将开放</button>
+        <button type="submit" :disabled="submitting || !message.trim()">{{ submitting ? '正在提交…' : '发送建议' }}</button>
+        <p v-if="feedback" class="suggestion__feedback" :class="{ 'suggestion__feedback--success': succeeded }" role="status" aria-live="polite">{{ feedback }}</p>
       </form>
       <div class="suggestion__smile-wrap"><ParticleSmile :focused="focused" :typing="message.length > 0" /></div>
     </div>
@@ -79,6 +131,10 @@ onBeforeUnmount(() => document.removeEventListener('keydown', closeOnEscape))
 .suggestion__meta span:last-child { flex: 0 0 auto; color: rgba(200, 189, 242, 0.68); }
 .suggestion form button[type='submit'] { width: 100%; padding: 11px; border: 1px solid rgba(190, 179, 242, 0.12); background: rgba(160, 147, 219, 0.1); color: var(--color-subtle); font: 10px var(--font-ui); letter-spacing: 0.12em; cursor: not-allowed; }
 .suggestion__smile-wrap { min-width: 0; min-height: 210px; border-left: 1px solid rgba(190, 179, 242, 0.12); }
+.suggestion__trap { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+.suggestion form button[type='submit']:not(:disabled) { cursor: pointer; color: var(--color-text); border-color: rgba(169, 148, 255, 0.5); }
+.suggestion__feedback { font: 12px/1.8 var(--font-serif-cn); color: #edb5ba; }
+.suggestion__feedback--success { color: #c1dbcb; }
 @media (max-width: 650px) {
   .suggestion { padding: 19px; }
   .suggestion__header { display: block; }

@@ -25,8 +25,8 @@ const navigationSections = sectionDefinitions.filter((section) => section.id !==
 
 <template>
   <header class="portfolio-header">
-    <RouterLink class="portfolio-brand" to="/" aria-label="Orbit Archive overview">
-      ZHEN
+    <RouterLink class="portfolio-brand" to="/" aria-label="圳的星河手记 首页">
+      <span>ZHEN</span><span class="portfolio-brand__name">/ 圳的星河手记</span>
     </RouterLink>
 
     <nav class="portfolio-nav" aria-label="Primary navigation">
@@ -69,12 +69,24 @@ const navigationSections = sectionDefinitions.filter((section) => section.id !==
 }
 
 .portfolio-brand {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
   width: fit-content;
   color: var(--color-text);
   font-family: var(--font-ui);
   font-size: 13px;
   font-weight: 500;
   letter-spacing: 0.5em;
+}
+
+.portfolio-brand__name {
+  color: var(--color-muted);
+  font-family: var(--font-serif-cn);
+  font-size: 11px;
+  letter-spacing: .08em;
+  white-space: nowrap;
 }
 
 .portfolio-nav {
