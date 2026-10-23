@@ -111,9 +111,17 @@ const glyphs = computed(() => [...props.word].map((letter, index) => ({
 }
 
 .line-wordmark[data-animation='loop'] .line-wordmark__dash {
-  animation:
-    line-wordmark-dash-array 1.85s ease-in-out var(--line-delay) infinite,
-    line-wordmark-dash-offset 1.85s linear var(--line-delay) infinite;
+  stroke-dasharray: 0 360;
+  stroke-dashoffset: 0;
+  opacity: 0;
+  animation: line-wordmark-loading-draw 1.85s ease-in-out var(--line-delay) infinite both;
+}
+
+@keyframes line-wordmark-loading-draw {
+  0%, 10% { stroke-dasharray: 0 360; opacity: 0; }
+  18% { opacity: 1; }
+  70%, 82% { stroke-dasharray: 360 0; opacity: 1; }
+  100% { stroke-dasharray: 0 360; opacity: 0; }
 }
 
 .line-wordmark[data-animation='static'] .line-wordmark__dash {
@@ -135,6 +143,7 @@ const glyphs = computed(() => [...props.word].map((letter, index) => ({
 @media (prefers-reduced-motion: reduce) {
   .line-wordmark__dash {
     animation: none !important;
+    opacity: 1 !important;
     stroke-dasharray: 359 1 0 0 !important;
     stroke-dashoffset: 5 !important;
   }

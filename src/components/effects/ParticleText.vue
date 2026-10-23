@@ -17,6 +17,9 @@ const props = defineProps({
   fontWeight: { type: [String, Number], default: 500 },
   fontFamily: { type: String, default: 'inherit' },
   glow: { type: Boolean, default: true },
+  align: { type: String, default: 'center' },
+  introAnimation: { type: Boolean, default: true },
+  scatterOnEnter: { type: Boolean, default: true },
 })
 
 const container = ref(null)
@@ -59,6 +62,8 @@ async function setup() {
   let width = 0
   let height = 0
   let dpr = 1
+  // Transition consumers receive the actual live points, never a font substitute.
+  host.captureParticlePoints = () => particles.map(({x,y,size,color}) => ({x,y,size,color}))
   let reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
   const pointer = { active: false, x: 0, y: 0, smoothX: 0, smoothY: 0 }
 
@@ -191,6 +196,7 @@ async function setup() {
     offscreenContext.textBaseline = 'alphabetic'
     offscreenContext.fillStyle = '#fff'
     offscreenContext.fillText(props.text, padding, padding + ascent)
+    const originX = props.align === 'left' ? 0 : width / 2 - offscreen.width / 2
 
     const data = offscreenContext.getImageData(0, 0, offscreen.width, offscreen.height)
     const targets = []
@@ -209,11 +215,11 @@ async function setup() {
     particles = targets.filter((_, index) => index % stride === 0).map((target, index) => {
       const seed = ((index * 9301 + 49297) % 233280) / 233280
       const depth = 0.45 + ((index * 233 + 97) % 1000) / 1000 * 0.9
-      const targetX = width / 2 - offscreen.width / 2 + target.x
+      const targetX = originX + target.x
       const targetY = height / 2 - offscreen.height / 2 + target.y
       const blend = clamp(targetX / width + (seed - 0.5) * 0.28, 0, 1)
       const angle = seed * Math.PI * 2
-      const distance = reducedMotion ? 0 : props.scatter * (0.3 + depth * 0.68)
+      const distance = reducedMotion || !props.introAnimation ? 0 : props.scatter * (0.3 + depth * 0.68)
       return {
         x: targetX + Math.cos(angle) * distance,
         y: targetY + Math.sin(angle) * distance,
@@ -233,7 +239,8 @@ async function setup() {
     pointer.y = height / 2
     pointer.smoothX = pointer.x
     pointer.smoothY = pointer.y
-    if (reducedMotion) {
+    gathering = false
+    if (reducedMotion || !props.introAnimation) {
       particles.forEach((particle) => {
         particle.x = particle.targetX
         particle.y = particle.targetY
@@ -258,7 +265,7 @@ async function setup() {
 
   function onPointerEnter(event) {
     updatePointer(event)
-    startGather(true)
+    if (props.scatterOnEnter) startGather(true)
   }
 
   function onPointerLeave() {
@@ -289,6 +296,7 @@ async function setup() {
   sampleText()
 
   cleanup = () => {
+    delete host.captureParticlePoints
     buildId += 1
     resizeObserver.disconnect()
     surface.removeEventListener('pointerenter', onPointerEnter)
@@ -304,7 +312,7 @@ async function setup() {
 }
 
 onMounted(setup)
-watch(() => [props.text, props.color, props.highlightColor, props.fontSize], setup)
+watch(() => [props.text, props.color, props.highlightColor, props.fontSize, props.align, props.introAnimation], setup)
 onBeforeUnmount(() => cleanup?.())
 </script>
 

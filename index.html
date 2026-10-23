@@ -8,6 +8,16 @@
       content="Orbit Archive — Zhen 的个人开发与科研作品集。"
     />
     <meta name="theme-color" content="#030512" />
+    <script>
+      (() => {
+        let appearance = 'blue'
+        try { appearance = localStorage.getItem('zhen-appearance') === 'crystal' ? 'crystal' : 'blue' } catch {}
+        document.documentElement.dataset.appearance = appearance
+        document.documentElement.style.backgroundColor = appearance === 'blue' ? '#fcfdff' : '#030512'
+        document.querySelector('meta[name="theme-color"]').content = appearance === 'blue' ? '#fcfdff' : '#030512'
+      })()
+    </script>
+    <style>html[data-appearance="blue"],html[data-appearance="blue"] body{background:#fcfdff}html[data-appearance="crystal"],html[data-appearance="crystal"] body{background:#030512}</style>
     <link rel="icon" href="data:," />
     <title>圳的星河手记</title>
   </head>

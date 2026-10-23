@@ -1,12 +1,26 @@
 # 圳的星河手记 · Orbit Archive
 
-基于 Vue 3、Vite、Vue Router 和 Three.js 的个人博客。00–04 共用晶体场景；02 DEVELOPMENT、03 RESEARCH 提供最新文章入口，阅读页使用独立滚动容器，不运行完整 3D 场景。
+基于 Vue 3、Vite、Vue Router 和 Three.js 的个人博客，提供晶体星河与蓝白阅读两种可切换界面。晶体版用 00–04 场景串联内容；蓝白版保留粒子欢迎文字、流动电路线背景与居中阅读布局，并加入可互动、可装扮的 3D 果冻伙伴。
 
 [访问网站](https://zhen0504.cn/) · [关于我与访客地图](https://zhen0504.cn/#/about/profile)
 
 ## 页面预览
 
-以下为线上版本的实际截图（2026-10-11），地图位置是网络出口的近似定位，不是设备精确位置。
+### 蓝白首页与果冻伙伴
+
+![蓝白首页、深蓝粒子欢迎文字与果冻伙伴](public/blog/building-my-blog/images/blue-home-20261023.png)
+
+### 陪伴式阅读
+
+![居中阅读区域、侧边果冻伙伴与关于页面](public/blog/building-my-blog/images/blue-reading-20261023.png)
+
+### 装扮互动
+
+![可拖动装扮盒与佩戴布质围巾的果冻伙伴](public/blog/building-my-blog/images/companion-wardrobe-20261023.png)
+
+以上为 2026-10-23 本地版本实际截图，不代表线上已部署。角色支持表情过渡、轻点回应、闲置动作、后空翻与阅读页拖拽互动；装扮按头饰、眼镜和胸前配件组合，选择与装扮盒位置仅保存在当前浏览器。搭建过程见 [开发手记](content/development/building-my-blog.md)。
+
+以下为原晶体版线上截图（2026-10-11），地图位置是网络出口的近似定位，不是设备精确位置。
 
 ### 水晶首页
 

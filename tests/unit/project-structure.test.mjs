@@ -75,7 +75,8 @@ assert.equal(packageJson.dependencies.postprocessing, '6.39.4')
 assert.equal(packageJson.dependencies.react, undefined)
 
 const app = readFileSync(resolve(root, 'src/App.vue'), 'utf8')
-assert.match(app, /<RouterView \/>/)
+assert.match(app, /<RouterView(?: v-else)? \/>/)
+assert.match(app, /<BlueExperience v-if="blue" \/>/)
 assert.doesNotMatch(app, /:key="route\.path"/)
 
 const router = readFileSync(resolve(root, 'src/router/index.js'), 'utf8')
